@@ -1,0 +1,411 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Quiz - {{ quiz.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/instructor.css' %}">
+<style>
+.quiz-edit-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.quiz-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.quiz-header h1 {
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+    font-size: 1.875rem;
+}
+
+.breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb a {
+    color: #8b5cf6;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.quiz-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.meta-item i {
+    font-size: 1.5rem;
+    color: #8b5cf6;
+}
+
+.meta-item-content h3 {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.meta-item-content p {
+    margin: 0.25rem 0 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.quiz-settings {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.quiz-settings h2 {
+    margin: 0 0 1.5rem;
+    color: #374151;
+    font-size: 1.25rem;
+}
+
+.questions-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.questions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.questions-header h2 {
+    margin: 0;
+    color: #374151;
+    font-size: 1.25rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+}
+
+.btn-primary {
+    background: #10b981;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary {
+    background: #8b5cf6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #7c3aed;
+}
+
+.btn-tertiary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-tertiary:hover {
+    background: #e5e7eb;
+}
+
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.question-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s;
+}
+
+.question-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.question-number {
+    background: #8b5cf6;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.question-content {
+    flex: 1;
+    margin: 0 1rem;
+}
+
+.question-text {
+    font-size: 1rem;
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+    font-weight: 500;
+}
+
+.question-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.question-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-edit {
+    background: white;
+    color: #8b5cf6;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-edit:hover {
+    background: #8b5cf6;
+    color: white;
+}
+
+.btn-delete {
+    background: white;
+    color: #ef4444;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-delete:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #9ca3af;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 1.125rem;
+    margin: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-edit-container">
+    <!-- Quiz Header -->
+    <div class="quiz-header">
+        <div class="breadcrumb">
+            <a href="{% url 'courses:instructor_dashboard' %}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <span>›</span>
+            <a href="{% url 'courses:instructor_course_edit' course.slug %}">{{ course.title }}</a>
+            <span>›</span>
+            <span>{{ quiz.title }}</span>
+        </div>
+        
+        <h1><i class="fas fa-clipboard-list"></i> {{ quiz.title }}</h1>
+        
+        <div class="quiz-meta">
+            <div class="meta-item">
+                <i class="fas fa-question-circle"></i>
+                <div class="meta-item-content">
+                    <h3>Questions</h3>
+                    <p>{{ questions.count }}</p>
+                </div>
+            </div>
+            
+            <div class="meta-item">
+                <i class="fas fa-trophy"></i>
+                <div class="meta-item-content">
+                    <h3>Passing Score</h3>
+                    <p>{{ quiz.passing_score }}%</p>
+                </div>
+            </div>
+            
+            <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                <div class="meta-item-content">
+                    <h3>Time Limit</h3>
+                    <p>{% if quiz.time_limit %}{{ quiz.time_limit }} min{% else %}No limit{% endif %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Settings -->
+    <div class="quiz-settings">
+        <h2><i class="fas fa-cog"></i> Quiz Settings</h2>
+        <form method="post" action="">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label>{{ form.passing_score.label }}</label>
+                    {{ form.passing_score }}
+                </div>
+                <div class="form-group">
+                    <label>{{ form.time_limit.label }}</label>
+                    {{ form.time_limit }}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-secondary">
+                <i class="fas fa-save"></i> Update Settings
+            </button>
+        </form>
+    </div>
+
+    <!-- Questions Section -->
+    <div class="questions-section">
+        <div class="questions-header">
+            <h2><i class="fas fa-list-ol"></i> Questions ({{ questions.count }})</h2>
+            <a href="{% url 'courses:instructor_question_create' course.slug quiz.id %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Question
+            </a>
+        </div>
+
+        {% if questions %}
+            <div class="questions-list">
+                {% for question in questions %}
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-number">{{ question.order|add:1 }}</div>
+                        <div class="question-content">
+                            <p class="question-text">{{ question.question_text }}</p>
+                            <div class="question-meta">
+                                <span><i class="fas fa-tag"></i> {{ question.get_question_type_display }}</span>
+                                <span><i class="fas fa-star"></i> {{ question.points }} point(s)</span>
+                                <span><i class="fas fa-list"></i> {{ question.choices.count }} choice(s)</span>
+                            </div>
+                        </div>
+                        <div class="question-actions">
+                            <a href="{% url 'courses:instructor_question_edit' course.slug question.id %}" class="btn-icon btn-edit" title="Edit Question">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button onclick="deleteQuestion({{ question.id }})" class="btn-icon btn-delete" title="Delete Question">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-question-circle"></i>
+                <p>No questions yet. Click "Add Question" to get started!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+        <a href="{% url 'courses:instructor_course_edit' course.slug %}" class="btn btn-tertiary">
+            <i class="fas fa-arrow-left"></i> Back to Course
+        </a>
+    </div>
+</div>
+
+<script>
+function deleteQuestion(questionId) {
+    if (!confirm('Are you sure you want to delete this question?')) {
+        return;
+    }
+    
+    fetch(`/courses/instructor/courses/{{ course.slug }}/questions/${questionId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Error deleting question: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting question');
+    });
+}
+</script>
+{% endblock %}

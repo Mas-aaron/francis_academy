@@ -1,0 +1,364 @@
+{% extends 'modern/base.html' %}
+{% load static %}
+
+{% block title %}Francis Academy - Unlock Your Potential with World-Class Education{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-modern">
+  <div class="hero-background">
+    <div class="hero-shape hero-shape-1"></div>
+    <div class="hero-shape hero-shape-2"></div>
+    <div class="hero-shape hero-shape-3"></div>
+  </div>
+  
+  <div class="container">
+    <div class="hero-content-modern animate-fade-in-up">
+      <div class="hero-badge">
+        <i class="fas fa-star"></i>
+        <span>Trusted by 10,000+ Students</span>
+      </div>
+      
+      <h1 class="hero-title-modern">
+        Unlock Your Potential with
+        <span class="gradient-text">World-Class</span> Education
+      </h1>
+      
+      <p class="hero-subtitle-modern">
+        Master in-demand skills from industry experts. Join our community of learners 
+        and transform your career with cutting-edge courses designed for success.
+      </p>
+      
+      <div class="hero-actions-modern">
+        <a href="{% url 'modern_course_list' %}" class="btn btn-hero-primary">
+          <i class="fas fa-rocket"></i>
+          Start Your Journey
+        </a>
+        <a href="#featured-courses" class="btn btn-hero-secondary">
+          <i class="fas fa-play-circle"></i>
+          Explore Courses
+        </a>
+      </div>
+      
+      <div class="hero-stats">
+        <div class="hero-stat-item">
+          <div class="stat-number" data-count="{{ total_courses }}">0</div>
+          <div class="stat-label">Premium Courses</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat-item">
+          <div class="stat-number" data-count="{{ total_students }}">0</div>
+          <div class="stat-label">Active Learners</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat-item">
+          <div class="stat-number">4.8</div>
+          <div class="stat-label">⭐ Average Rating</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#ffffff" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+    </svg>
+  </div>
+</section>
+
+<!-- Trust Badges Section -->
+<section class="trust-section">
+  <div class="container">
+    <div class="trust-badges">
+      <div class="trust-badge animate-fade-in-up">
+        <i class="fas fa-shield-alt"></i>
+        <span>Secure Learning</span>
+      </div>
+      <div class="trust-badge animate-fade-in-up" style="animation-delay: 0.1s">
+        <i class="fas fa-certificate"></i>
+        <span>Certified Courses</span>
+      </div>
+      <div class="trust-badge animate-fade-in-up" style="animation-delay: 0.2s">
+        <i class="fas fa-headset"></i>
+        <span>24/7 Support</span>
+      </div>
+      <div class="trust-badge animate-fade-in-up" style="animation-delay: 0.3s">
+        <i class="fas fa-infinity"></i>
+        <span>Lifetime Access</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Preview -->
+<section class="categories-preview" id="categories">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-badge">Popular Topics</span>
+      <h2 class="section-title">Explore Top Categories</h2>
+      <p class="section-subtitle">
+        Choose from our most popular learning paths and start your journey
+      </p>
+    </div>
+    
+    <div class="category-grid">
+      {% for category in categories|slice:":6" %}
+        <a href="{% url 'modern_course_list' %}?category={{ category.slug }}" 
+           class="category-card-modern animate-fade-in-up">
+          <div class="category-icon-wrapper">
+            {% if category.name == 'Programming' %}
+              <i class="fas fa-code"></i>
+            {% elif category.name == 'Design' %}
+              <i class="fas fa-palette"></i>
+            {% elif category.name == 'Business' %}
+              <i class="fas fa-briefcase"></i>
+            {% elif category.name == 'Marketing' %}
+              <i class="fas fa-bullhorn"></i>
+            {% elif category.name == 'Data Science' %}
+              <i class="fas fa-chart-line"></i>
+            {% else %}
+              <i class="fas fa-graduation-cap"></i>
+            {% endif %}
+          </div>
+          <h3 class="category-name">{{ category.name }}</h3>
+          <p class="category-courses">{{ category.course_count|default:"0" }} courses</p>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Featured Courses -->
+<section class="featured-section" id="featured-courses">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-badge">Top Picks</span>
+      <h2 class="section-title">Featured Courses</h2>
+      <p class="section-subtitle">
+        Hand-picked courses from industry experts to accelerate your learning journey
+      </p>
+    </div>
+    
+    <div class="courses-grid-modern">
+      {% for course in featured_courses %}
+        <div class="course-card-modern animate-fade-in-up" data-category="{{ course.category.slug }}">
+          <div class="course-image-modern">
+            {% if course.thumbnail %}
+              <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/default-course.jpg' %}" alt="{{ course.title }}" loading="lazy">
+            {% endif %}
+            <div class="course-badge-featured">
+              <i class="fas fa-star"></i> Featured
+            </div>
+            <div class="course-overlay">
+              <a href="{% url 'course_detail' course.slug %}" class="btn btn-sm btn-light">View Details</a>
+            </div>
+          </div>
+          
+          <div class="course-content-modern">
+            <div class="course-header-modern">
+              <span class="course-category-badge">{{ course.category.name }}</span>
+              <div class="course-level">{{ course.level|default:"All Levels" }}</div>
+            </div>
+            
+            <h3 class="course-title-modern">
+              <a href="{% url 'course_detail' course.slug %}">{{ course.title }}</a>
+            </h3>
+            
+            <p class="course-instructor-modern">
+              <i class="fas fa-user-circle"></i>
+              {{ course.instructor.full_name }}
+            </p>
+            
+            <div class="course-meta-modern">
+              <div class="course-rating-modern">
+                <i class="fas fa-star"></i>
+                <span>{{ course.average_rating|default:"4.5"|floatformat:1 }}</span>
+                <span class="rating-count">({{ course.total_enrollments|default:"0" }})</span>
+              </div>
+              <div class="course-lessons">
+                <i class="fas fa-book-open"></i>
+                <span>{{ course.lessons.count }} lessons</span>
+              </div>
+            </div>
+            
+            <div class="course-footer-modern">
+              {% if course.price > 0 %}
+                <div class="course-price-modern">
+                  <span class="price-current">${{ course.price }}</span>
+                  {% if course.original_price %}
+                    <span class="price-original">${{ course.original_price }}</span>
+                  {% endif %}
+                </div>
+              {% else %}
+                <div class="course-price-modern">
+                  <span class="price-free">Free</span>
+                </div>
+              {% endif %}
+              
+              <a href="{% url 'course_detail' course.slug %}" class="btn btn-enroll">
+                Enroll Now
+                <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-state">
+          <i class="fas fa-graduation-cap"></i>
+          <h3>No Featured Courses Yet</h3>
+          <p>Check back soon for amazing courses!</p>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="text-center mt-16">
+      <a href="{% url 'modern_course_list' %}" class="btn btn-view-all">
+        Explore All Courses
+        <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="benefits-section">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-badge">Why Francis Academy</span>
+      <h2 class="section-title">Everything You Need to Succeed</h2>
+      <p class="section-subtitle">
+        We provide all the tools and support you need for a successful learning journey
+      </p>
+    </div>
+    
+    <div class="benefits-grid">
+      <div class="benefit-card animate-fade-in-up">
+        <div class="benefit-icon">
+          <i class="fas fa-chalkboard-teacher"></i>
+        </div>
+        <h3>Expert Instructors</h3>
+        <p>Learn from industry professionals with real-world experience and proven expertise.</p>
+      </div>
+      
+      <div class="benefit-card animate-fade-in-up" style="animation-delay: 0.1s">
+        <div class="benefit-icon">
+          <i class="fas fa-mobile-alt"></i>
+        </div>
+        <h3>Learn Anywhere</h3>
+        <p>Access courses on any device. Learn at your own pace, whenever and wherever you want.</p>
+      </div>
+      
+      <div class="benefit-card animate-fade-in-up" style="animation-delay: 0.2s">
+        <div class="benefit-icon">
+          <i class="fas fa-certificate"></i>
+        </div>
+        <h3>Get Certified</h3>
+        <p>Earn recognized certificates to showcase your achievements and boost your career.</p>
+      </div>
+      
+      <div class="benefit-card animate-fade-in-up" style="animation-delay: 0.3s">
+        <div class="benefit-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3>Join Community</h3>
+        <p>Connect with thousands of learners, share knowledge, and grow together.</p>
+      </div>
+      
+      <div class="benefit-card animate-fade-in-up" style="animation-delay: 0.4s">
+        <div class="benefit-icon">
+          <i class="fas fa-infinity"></i>
+        </div>
+        <h3>Lifetime Access</h3>
+        <p>Get unlimited access to all course materials and future updates once enrolled.</p>
+      </div>
+      
+      <div class="benefit-card animate-fade-in-up" style="animation-delay: 0.5s">
+        <div class="benefit-icon">
+          <i class="fas fa-rocket"></i>
+        </div>
+        <h3>Career Growth</h3>
+        <p>Master job-ready skills that help you advance your career and achieve your goals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-background"></div>
+  <div class="container">
+    <div class="cta-content">
+      <div class="cta-icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <h2 class="cta-title">Ready to Transform Your Future?</h2>
+      <p class="cta-subtitle">
+        Join over {{ total_students }} students who are already mastering new skills and advancing their careers
+      </p>
+      <div class="cta-actions">
+        <a href="{% url 'modern_course_list' %}" class="btn btn-cta-primary">
+          <i class="fas fa-rocket"></i>
+          Start Learning Today
+        </a>
+        {% if not user.is_authenticated %}
+          <a href="/admin/login/" class="btn btn-cta-secondary">
+            <i class="fas fa-user-plus"></i>
+            Create Free Account
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+// Counter animation
+const animateCounter = (element, target) => {
+  const duration = 2000;
+  const start = 0;
+  const increment = target / (duration / 16);
+  let current = start;
+  
+  const timer = setInterval(() => {
+    current += increment;
+    if (current >= target) {
+      element.textContent = target;
+      clearInterval(timer);
+    } else {
+      element.textContent = Math.ceil(current);
+    }
+  }, 16);
+};
+
+// Intersection Observer for animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const counter = entry.target.querySelector('[data-count]');
+      if (counter && !counter.classList.contains('animated')) {
+        const target = parseInt(counter.getAttribute('data-count'));
+        animateCounter(counter, target);
+        counter.classList.add('animated');
+      }
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.hero-stats, .stat-number').forEach(el => observer.observe(el));
+</script>
+{% endblock %}

@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ quiz.title }} - {{ course.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/course-learn-coursera.css' %}">
+<style>
+.quiz-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.quiz-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.quiz-header h1 {
+    margin: 0 0 1rem;
+    font-size: 2rem;
+}
+
+.quiz-meta {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    font-size: 1rem;
+    opacity: 0.95;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quiz-info-box {
+    background: #fff3cd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.quiz-info-box h3 {
+    margin: 0 0 0.5rem;
+    color: #856404;
+}
+
+.quiz-info-box ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.5rem;
+    color: #856404;
+}
+
+.timer-box {
+    position: sticky;
+    top: 20px;
+    background: white;
+    border: 2px solid #ef4444;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.timer-box.warning {
+    background: #fef2f2;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.timer {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ef4444;
+    font-family: 'Courier New', monospace;
+}
+
+.quiz-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.question-card {
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.question-card:hover {
+    border-color: #8b5cf6;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+}
+
+.question-header {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.question-number {
+    background: #8b5cf6;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+}
+
+.question-content {
+    flex: 1;
+}
+
+.question-text {
+    font-size: 1.125rem;
+    color: #1f2937;
+    font-weight: 500;
+    margin: 0 0 0.5rem;
+}
+
+.question-points {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.choices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.choice-option {
+    position: relative;
+    padding: 1rem 1.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.choice-option:hover {
+    border-color: #8b5cf6;
+    background: #f9fafb;
+}
+
+.choice-option input[type="radio"],
+.choice-option input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.choice-option input[type="radio"]:checked ~ label,
+.choice-option input[type="checkbox"]:checked ~ label {
+    color: #8b5cf6;
+    font-weight: 600;
+}
+
+.choice-option:has(input:checked) {
+    border-color: #8b5cf6;
+    background: #f5f3ff;
+}
+
+.choice-label {
+    flex: 1;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #374151;
+}
+
+.submit-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.btn-submit {
+    background: #10b981;
+    color: white;
+    padding: 1rem 3rem;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-submit:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.progress-bar {
+    background: #e5e7eb;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #10b981, #059669);
+    height: 100%;
+    transition: width 0.3s;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <!-- Quiz Header -->
+    <div class="quiz-header">
+        <h1><i class="fas fa-clipboard-list"></i> {{ quiz.title }}</h1>
+        <div class="quiz-meta">
+            <div class="meta-item">
+                <i class="fas fa-question-circle"></i>
+                <span>{{ questions.count }} Questions</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-trophy"></i>
+                <span>Passing: {{ quiz.passing_score }}%</span>
+            </div>
+            {% if quiz.time_limit %}
+            <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                <span>{{ quiz.time_limit }} Minutes</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Timer (if applicable) -->
+    {% if quiz.time_limit %}
+    <div class="timer-box" id="timerBox">
+        <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Time Remaining</div>
+        <div class="timer" id="timer">{{ quiz.time_limit }}:00</div>
+    </div>
+    {% endif %}
+
+    <!-- Quiz Info -->
+    <div class="quiz-info-box">
+        <h3><i class="fas fa-info-circle"></i> Instructions</h3>
+        <ul>
+            <li>Read each question carefully</li>
+            <li>Select your answer(s) for each question</li>
+            <li>You need {{ quiz.passing_score }}% to pass this quiz</li>
+            {% if quiz.time_limit %}
+            <li><strong>Time limit: {{ quiz.time_limit }} minutes</strong> - Quiz will auto-submit when time runs out</li>
+            {% endif %}
+            <li>Click "Submit Quiz" when you're done</li>
+        </ul>
+    </div>
+
+    <!-- Quiz Form -->
+    <form method="post" id="quizForm" action="{% url 'courses:quiz_submit' course.slug quiz.id %}">
+        {% csrf_token %}
+        
+        <div class="quiz-form">
+            {% for question in questions %}
+            <div class="question-card">
+                <div class="question-header">
+                    <div class="question-number">{{ forloop.counter }}</div>
+                    <div class="question-content">
+                        <p class="question-text">{{ question.question_text }}</p>
+                        <p class="question-points">
+                            <i class="fas fa-star"></i> {{ question.points }} point{{ question.points|pluralize }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="choices-list">
+                    {% if question.question_type == 'short_answer' %}
+                        <!-- Short Answer Input -->
+                        <textarea 
+                            name="question_{{ question.id }}_text" 
+                            class="form-control" 
+                            rows="4" 
+                            placeholder="Type your answer here..."
+                            style="width: 100%; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;"
+                        ></textarea>
+                    {% else %}
+                        <!-- Multiple Choice -->
+                        {% for choice in question.choices.all %}
+                        <div class="choice-option">
+                            <input 
+                                type="radio" 
+                                name="question_{{ question.id }}" 
+                                value="{{ choice.id }}" 
+                                id="choice_{{ choice.id }}"
+                            >
+                            <label for="choice_{{ choice.id }}" class="choice-label">
+                                {{ choice.choice_text }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-check-circle"></i> Submit Quiz
+            </button>
+        </div>
+    </form>
+</div>
+
+{% if quiz.time_limit %}
+<script>
+// Timer functionality
+let timeLimit = {{ quiz.time_limit }} * 60; // Convert to seconds
+let timerElement = document.getElementById('timer');
+let timerBox = document.getElementById('timerBox');
+let quizForm = document.getElementById('quizForm');
+
+function updateTimer() {
+    let minutes = Math.floor(timeLimit / 60);
+    let seconds = timeLimit % 60;
+    
+    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Warning when less than 5 minutes
+    if (timeLimit <= 300) {
+        timerBox.classList.add('warning');
+    }
+    
+    // Auto-submit when time runs out
+    if (timeLimit <= 0) {
+        alert('Time is up! Submitting your quiz...');
+        quizForm.submit();
+        return;
+    }
+    
+    timeLimit--;
+    setTimeout(updateTimer, 1000);
+}
+
+// Start timer
+updateTimer();
+
+// Warn before leaving page
+window.addEventListener('beforeunload', function(e) {
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+});
+</script>
+{% endif %}
+
+<script>
+// Form validation
+document.getElementById('quizForm').addEventListener('submit', function(e) {
+    let totalQuestions = {{ questions.count }};
+    let answeredQuestions = 0;
+    
+    // Count answered questions
+    for (let i = 0; i < totalQuestions; i++) {
+        let questionInputs = document.querySelectorAll(`input[name="question_${i + 1}"]:checked`);
+        if (questionInputs.length > 0) {
+            answeredQuestions++;
+        }
+    }
+    
+    if (answeredQuestions < totalQuestions) {
+        if (!confirm(`You have only answered ${answeredQuestions} out of ${totalQuestions} questions. Submit anyway?`)) {
+            e.preventDefault();
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,333 @@
+{% extends 'modern/base.html' %}
+{% load static %}
+
+{% block title %}My Wishlist - Francis Academy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/wishlist-improved.css' %}?v=3">
+{% endblock %}
+
+{% block content %}
+    <div class="wishlist-container-improved">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="wishlist-header-improved">
+                <h1 class="wishlist-title-improved">My Wishlist</h1>
+                <p class="wishlist-subtitle-improved">Courses you want to take later</p>
+                
+                <div class="wishlist-stats-improved">
+                    <div class="wishlist-stat-improved">
+                        <span class="wishlist-stat-number">{{ wishlist_items|length }}</span>
+                        <span class="wishlist-stat-label">Courses Saved</span>
+                    </div>
+                    <div class="wishlist-stat-improved">
+                        <span class="wishlist-stat-number">UGX {{ total_value|default:"0" }}</span>
+                        <span class="wishlist-stat-label">Total Value</span>
+                    </div>
+                    <div class="wishlist-stat-improved">
+                        <span class="wishlist-stat-number">{{ free_courses_count|default:"0" }}</span>
+                        <span class="wishlist-stat-label">Free Courses</span>
+                    </div>
+                </div>
+            </div>
+            
+            {% if wishlist_items %}
+                <!-- Wishlist Actions -->
+                <div class="wishlist-actions-improved">
+                    <div class="wishlist-actions-left">
+                        <p class="results-count">
+                            <strong>{{ wishlist_items|length }}</strong> course{{ wishlist_items|length|pluralize }} in your wishlist
+                        </p>
+                    </div>
+                    
+                    <div class="wishlist-actions-right">
+                        <button class="btn-share-wishlist" onclick="shareWishlist()">
+                            <i class="fas fa-share-alt"></i>
+                            Share Wishlist
+                        </button>
+                        <button class="btn-clear-all-improved" onclick="clearAllWishlist()">
+                            <i class="fas fa-trash-alt"></i>
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Wishlist Grid -->
+                <div class="wishlist-grid-improved" id="wishlistGrid">
+                    {% for item in wishlist_items %}
+                        <div class="wishlist-item-improved" data-course-slug="{{ item.course.slug }}" id="wishlist-item-{{ item.course.slug }}">
+                            <div class="wishlist-item-image">
+                                <a href="{% url 'course_detail' item.course.slug %}">
+                                    {% if item.course.thumbnail %}
+                                        <img src="{{ item.course.thumbnail.url }}" alt="{{ item.course.title }}" loading="lazy">
+                                    {% else %}
+                                        <img src="{% static 'images/default-course.jpg' %}" alt="{{ item.course.title }}" loading="lazy">
+                                    {% endif %}
+                                </a>
+                                
+                                <div class="wishlist-date-badge">
+                                    Added {{ item.created_at|timesince }} ago
+                                </div>
+                                
+                                <button class="wishlist-remove-btn" onclick="removeFromWishlist('{{ item.course.slug }}')" title="Remove from wishlist">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="wishlist-item-content">
+                                <span class="wishlist-item-category">{{ item.course.category.name }}</span>
+                                
+                                <h3 class="wishlist-item-title">
+                                    <a href="{% url 'course_detail' item.course.slug %}">{{ item.course.title }}</a>
+                                </h3>
+                                
+                                <p class="wishlist-item-instructor">
+                                    <i class="fas fa-user-circle"></i>
+                                    {{ item.course.instructor.full_name }}
+                                </p>
+                                
+                                <p class="wishlist-item-description">
+                                    {{ item.course.short_description|default:"Discover new skills and advance your career with this comprehensive course." }}
+                                </p>
+                                
+                                <div class="wishlist-item-meta">
+                                    <div class="wishlist-item-rating">
+                                        <i class="fas fa-star"></i>
+                                        <span>{{ item.course.average_rating|default:"4.5"|floatformat:1 }}</span>
+                                        <span class="rating-count">({{ item.course.total_enrollments|default:"0" }})</span>
+                                    </div>
+                                    <div class="wishlist-item-price {% if item.course.price == 0 %}free{% endif %}">
+                                        {% if item.course.price > 0 %}
+                                            UGX {{ item.course.price }}
+                                        {% else %}
+                                            Free
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="wishlist-item-actions">
+                                    <a href="{% url 'course_detail' item.course.slug %}" class="btn-view-course-improved">
+                                        <i class="fas fa-eye"></i>
+                                        View Course
+                                    </a>
+                                    <button class="btn-remove-improved" onclick="removeFromWishlist('{{ item.course.slug }}')" title="Remove from wishlist">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- Empty State -->
+                <div class="wishlist-empty-improved">
+                    <div class="wishlist-empty-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="wishlist-empty-title">Your wishlist is empty</h3>
+                    <p class="wishlist-empty-description">
+                        Start building your learning journey by adding courses to your wishlist. 
+                        Save courses you're interested in and come back to them later.
+                    </p>
+                    <a href="{% url 'modern_course_list' %}" class="btn-browse-courses-improved">
+                        <i class="fas fa-search"></i>
+                        Browse Courses
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enhanced wishlist functionality
+function removeFromWishlist(courseSlug) {
+    const item = document.getElementById(`wishlist-item-${courseSlug}`);
+    const confirmMessage = 'Are you sure you want to remove this course from your wishlist?';
+    
+    if (confirm(confirmMessage)) {
+        // Add removing animation
+        item.classList.add('wishlist-item-removing');
+        
+        fetch(`/courses/course/${courseSlug}/wishlist/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.added) {
+                // Remove item after animation
+                setTimeout(() => {
+                    item.remove();
+                    updateWishlistStats();
+                    showSuccessMessage('Course removed from wishlist');
+                    
+                    // Check if wishlist is now empty
+                    const remainingItems = document.querySelectorAll('.wishlist-item-improved');
+                    if (remainingItems.length === 0) {
+                        location.reload(); // Reload to show empty state
+                    }
+                }, 300);
+            } else {
+                // Remove animation class if removal failed
+                item.classList.remove('wishlist-item-removing');
+                alert('Failed to remove course from wishlist. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            item.classList.remove('wishlist-item-removing');
+            alert('An error occurred. Please try again.');
+        });
+    }
+}
+
+function clearAllWishlist() {
+    const items = document.querySelectorAll('.wishlist-item-improved');
+    const confirmMessage = `Are you sure you want to remove all ${items.length} courses from your wishlist?`;
+    
+    if (confirm(confirmMessage)) {
+        const promises = [];
+        
+        items.forEach(item => {
+            const courseSlug = item.dataset.courseSlug;
+            item.classList.add('wishlist-item-removing');
+            
+            const promise = fetch(`/courses/course/${courseSlug}/wishlist/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            promises.push(promise);
+        });
+        
+        Promise.all(promises)
+            .then(() => {
+                setTimeout(() => {
+                    location.reload(); // Reload to show empty state
+                }, 500);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Some courses could not be removed. Please try again.');
+                location.reload();
+            });
+    }
+}
+
+function shareWishlist() {
+    const url = window.location.href;
+    const title = 'Check out my course wishlist on Francis Academy';
+    
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            url: url
+        }).catch(console.error);
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(url).then(() => {
+            showSuccessMessage('Wishlist link copied to clipboard!');
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showSuccessMessage('Wishlist link copied to clipboard!');
+        });
+    }
+}
+
+function updateWishlistStats() {
+    const remainingItems = document.querySelectorAll('.wishlist-item-improved');
+    const countElement = document.querySelector('.wishlist-stat-number');
+    const resultsCount = document.querySelector('.results-count strong');
+    
+    if (countElement) {
+        countElement.textContent = remainingItems.length;
+    }
+    
+    if (resultsCount) {
+        resultsCount.textContent = remainingItems.length;
+    }
+}
+
+function showSuccessMessage(message) {
+    // Create and show toast notification
+    const toast = document.createElement('div');
+    toast.className = 'wishlist-success-message';
+    toast.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${message}</span>
+    `;
+    
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #10b981;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: slideInRight 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add CSRF token to all requests
+document.addEventListener('DOMContentLoaded', function() {
+    // Create CSRF token input if it doesn't exist
+    if (!document.querySelector('[name=csrfmiddlewaretoken]')) {
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}';
+        document.body.appendChild(csrfToken);
+    }
+});
+</script>
+
+<!-- Add animation styles -->
+<style>
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+.wishlist-item-removing {
+    animation: slideOut 0.3s ease-out forwards;
+}
+
+@keyframes slideOut {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(100%); }
+}
+</style>
+{% endblock %}

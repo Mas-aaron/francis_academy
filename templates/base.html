@@ -1,0 +1,558 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Francis Academy - Modern Online Learning Platform{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Francis Academy offers cutting-edge online courses for professionals and kids. Learn from industry experts with our interactive learning platform.{% endblock %}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@9/swiper-bundle.min.css">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'images/francis-logo.png' %}" type="image/x-icon">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/header-modern.css' %}">
+    
+    <!-- Modal Styles -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: var(--primary);
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: var(--primary);
+        }
+        
+        .modal-body {
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            justify-content: center;
+        }
+        
+        .auth-buttons .btn {
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .guest-option {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .guest-option p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .btn-secondary {
+            background: var(--text-tertiary);
+            color: white;
+            border: none;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--text-secondary);
+        }
+        
+        .course-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .course-actions .btn {
+            flex: 1;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        .btn-preview {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .btn-preview:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 20% auto;
+                width: 95%;
+            }
+            
+            .auth-buttons {
+                flex-direction: column;
+            }
+            
+            .auth-buttons .btn {
+                max-width: none;
+            }
+            
+            .course-actions {
+                flex-direction: column;
+            }
+        }
+        
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 300px;
+            max-width: 400px;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            border-left-color: var(--success);
+        }
+        
+        .toast.error {
+            border-left-color: var(--error);
+        }
+        
+        .toast.info {
+            border-left-color: var(--info);
+        }
+        
+        .toast-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .toast.success .toast-icon {
+            color: var(--success);
+        }
+        
+        .toast.error .toast-icon {
+            color: var(--error);
+        }
+        
+        .toast.info .toast-icon {
+            color: var(--info);
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .toast-message {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.5rem;
+        }
+        
+        .toast-close:hover {
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+            
+            .toast {
+                min-width: auto;
+                max-width: none;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header-modern">
+        <div class="container-fluid">
+            <div class="header-wrapper">
+                <!-- Logo -->
+                <a href="{% url 'home' %}" class="logo-modern">
+                    <div class="logo-icon-modern">F</div>
+                    <span class="logo-text-modern">Francis Academy</span>
+                </a>
+                
+                <!-- Search Bar (Center) -->
+                <div class="search-bar-modern">
+                    <form method="GET" action="{% url 'courses:course_list' %}">
+                        <i class="fas fa-search search-icon-modern"></i>
+                        <input type="text" name="search" placeholder="Search courses, instructors, topics..." class="search-input-modern" value="{{ request.GET.search }}">
+                    </form>
+                </div>
+                
+                <!-- Navigation & Actions -->
+                <nav class="nav-modern">
+                    <a href="{% url 'home' %}" class="nav-link-modern {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+                    <a href="{% url 'courses:course_list' %}" class="nav-link-modern">Courses</a>
+                    <a href="#" class="nav-link-modern">About</a>
+                    <a href="#" class="nav-link-modern">Contact</a>
+                    
+                    <div class="header-actions">
+                        <!-- Wishlist -->
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'courses:wishlist' %}" class="action-icon" title="Wishlist">
+                                <i class="fas fa-heart"></i>
+                            </a>
+                            
+                            <!-- Notifications -->
+                            <div class="action-icon notification-icon" title="Notifications">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">3</span>
+                            </div>
+                            
+                            <!-- User Menu -->
+                            <div class="user-menu-modern" onclick="toggleUserMenuModern()">
+                                <div class="user-avatar-modern">{{ user.first_name.0|default:user.username.0|upper }}</div>
+                                <span class="user-name-modern">{{ user.first_name|default:user.username }}</span>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                
+                                <div id="userDropdownModern" class="user-dropdown-modern">
+                                    {% if user.instructor_profile %}
+                                        <a href="{% url 'courses:instructor_dashboard' %}" class="dropdown-item-modern">
+                                            <i class="fas fa-chalkboard-teacher"></i> Instructor Dashboard
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                    {% endif %}
+                                    <a href="{% url 'courses:student_dashboard' %}" class="dropdown-item-modern">
+                                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                                    </a>
+                                    <a href="{% url 'courses:my_courses' %}" class="dropdown-item-modern">
+                                        <i class="fas fa-book"></i> My Courses
+                                    </a>
+                                    <a href="{% url 'courses:wishlist' %}" class="dropdown-item-modern">
+                                        <i class="fas fa-heart"></i> Wishlist
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="/admin/logout/" class="dropdown-item-modern">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="/admin/login/" class="btn-login-modern">Login</a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Mobile Menu Toggle -->
+                    <button class="mobile-toggle-modern" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>Francis Academy</h3>
+                    <p>Empowering students with personalized interactive learning designed to build essential skills for future success.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'courses:course_list' %}">Courses</a></li>
+                        <li><a href="{% url 'courses:course_list' %}?category=kids">Kids Programs</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Refund Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-newsletter">
+                    <h4>Newsletter</h4>
+                    <p>Subscribe to get updates on new courses and special offers.</p>
+                    <form>
+                        <input type="email" placeholder="Your email address">
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Francis Academy. All rights reserved.</p>
+                <div class="legal-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Join Francis Academy</h2>
+                <span class="close" onclick="closeLoginModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Sign up to track your progress, earn certificates, and access all course features!</p>
+                <div class="auth-buttons">
+                    <a href="/admin/login/" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="/admin/login/" class="btn btn-outline">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </a>
+                </div>
+                <div class="guest-option">
+                    <p>Or continue as guest (limited features)</p>
+                    <button class="btn btn-secondary" onclick="continueAsGuest()">
+                        <i class="fas fa-eye"></i> Continue as Guest
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/swiper@9/swiper-bundle.min.js"></script>
+    <script src="{% static 'script.js' %}"></script>
+    
+    <!-- Additional JavaScript for user menu and modals -->
+    <script>
+        // Modern header functions
+        function toggleUserMenuModern() {
+            const dropdown = document.getElementById("userDropdownModern");
+            dropdown.classList.toggle("show");
+        }
+        
+        function toggleMobileMenu() {
+            const nav = document.querySelector(".nav-modern");
+            nav.classList.toggle("mobile-open");
+        }
+        
+        function showLoginModal() {
+            document.getElementById("loginModal").style.display = "block";
+        }
+        
+        function closeLoginModal() {
+            document.getElementById("loginModal").style.display = "none";
+        }
+        
+        function continueAsGuest() {
+            closeLoginModal();
+            // Store the intended course URL and redirect
+            const intendedCourse = sessionStorage.getItem('intendedCourse');
+            if (intendedCourse) {
+                showToast('info', 'Continuing as Guest', 'You can start learning immediately! Register later to track progress.');
+                setTimeout(() => {
+                    window.location.href = intendedCourse;
+                    sessionStorage.removeItem('intendedCourse');
+                }, 1500);
+            }
+        }
+        
+        // Toast notification system
+        function showToast(type, title, message, duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const iconMap = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                info: 'fas fa-info-circle',
+                warning: 'fas fa-exclamation-triangle'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="${iconMap[type] || iconMap.info}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="closeToast(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Auto remove
+            setTimeout(() => {
+                closeToast(toast.querySelector('.toast-close'));
+            }, duration);
+        }
+        
+        function closeToast(button) {
+            const toast = button.closest('.toast');
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }
+        
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.closest('.user-menu-modern')) {
+                var dropdown = document.getElementById("userDropdownModern");
+                if (dropdown && dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+            
+            // Close modal when clicking outside
+            if (event.target.id === 'loginModal') {
+                closeLoginModal();
+            }
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

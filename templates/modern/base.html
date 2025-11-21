@@ -1,0 +1,459 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Francis Academy - Learn Skills That Matter{% endblock %}</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="{% block description %}Learn in-demand skills with expert instructors at Francis Academy. Join thousands of students advancing their careers with our comprehensive online courses.{% endblock %}">
+    <meta name="keywords" content="online learning, courses, education, skills, programming, design, business">
+    <meta name="author" content="Francis Academy">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}Francis Academy - Learn Skills That Matter{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Join thousands of students learning in-demand skills with expert instructors.{% endblock %}">
+    <meta property="og:image" content="{% static 'images/og-image.jpg' %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.svg' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logo.svg' %}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Notification Fix Script (Load First) -->
+    <script src="{% static 'js/notification-fix.js' %}?v=2"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/modern-style.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/home-elegant.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/header-footer-elegant.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/notifications.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/categories-enhanced.css' %}?v=2">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Enhanced Navigation -->
+    <nav class="navbar-elegant" id="mainNavbar">
+        <div class="container">
+            <div class="navbar-container-elegant">
+                <!-- Brand -->
+                <a href="{% url 'home' %}" class="navbar-brand-elegant">
+                    <img src="{% static 'images/logo.svg' %}" alt="Francis Academy">
+                    <span>Francis Academy</span>
+                </a>
+                
+                <!-- Search Bar (Desktop) -->
+                <div class="navbar-search">
+                    <input type="text" placeholder="Search courses, instructors, topics..." id="navbarSearchInput">
+                    <i class="fas fa-search navbar-search-icon"></i>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <ul class="navbar-nav-elegant">
+                    <li><a href="{% url 'home' %}" class="navbar-link-elegant">Home</a></li>
+                    <li><a href="{% url 'modern_course_list' %}" class="navbar-link-elegant">Courses</a></li>
+                    <li><a href="{% url 'about' %}" class="navbar-link-elegant">About</a></li>
+                    <li><a href="{% url 'contact' %}" class="navbar-link-elegant">Contact</a></li>
+                </ul>
+                
+                <!-- User Actions -->
+                <div class="navbar-actions">
+                    {% if user.is_authenticated %}
+                        <!-- Wishlist -->
+                        <button class="navbar-icon-btn" data-href="{% url 'courses:wishlist' %}" title="Wishlist">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        
+                        <!-- Notifications -->
+                        <button class="navbar-icon-btn" id="notificationBtn" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </button>
+                        
+                        <!-- User Dropdown -->
+                        <div class="user-dropdown-elegant">
+                            <button class="user-dropdown-toggle" id="userDropdownBtn">
+                                <div class="user-avatar-elegant">
+                                    {{ user.first_name|first|default:user.username|first|upper }}
+                                </div>
+                                <span class="user-name">{{ user.first_name|default:user.username }}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            
+                            <div class="dropdown-menu-elegant" id="userDropdown">
+                                <div class="dropdown-header">
+                                    <div class="dropdown-header-name">{{ user.get_full_name|default:user.username }}</div>
+                                    <div class="dropdown-header-email">{{ user.email }}</div>
+                                </div>
+                                <a href="{% url 'student_dashboard' %}">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    Dashboard
+                                </a>
+                                <a href="{% url 'courses:my_courses' %}">
+                                    <i class="fas fa-book"></i>
+                                    My Courses
+                                </a>
+                                <a href="{% url 'courses:wishlist' %}">
+                                    <i class="fas fa-heart"></i>
+                                    Wishlist
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#">
+                                    <i class="fas fa-user-circle"></i>
+                                    Profile Settings
+                                </a>
+                                <a href="#">
+                                    <i class="fas fa-cog"></i>
+                                    Preferences
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Guest Menu -->
+                        <div class="navbar-auth-buttons">
+                            <a href="{% url 'login' %}" class="btn-login-elegant">Login</a>
+                            <a href="{% url 'signup' %}" class="btn-signup-elegant">Sign Up</a>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Mobile Menu Toggle -->
+                    <button class="mobile-menu-toggle-elegant" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu-elegant" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="{% url 'home' %}" class="navbar-brand-elegant">
+                <img src="{% static 'images/logo.svg' %}" alt="Francis Academy">
+                <span>Francis Academy</span>
+            </a>
+            <button class="mobile-menu-close" id="mobileMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="mobile-menu-body">
+            <!-- Mobile Search -->
+            <div class="mobile-menu-search">
+                <input type="text" placeholder="Search courses...">
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <nav class="mobile-menu-nav">
+                <a href="{% url 'home' %}" class="mobile-menu-link">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                <a href="{% url 'modern_course_list' %}" class="mobile-menu-link">
+                    <i class="fas fa-book"></i>
+                    Courses
+                </a>
+                <a href="{% url 'about' %}" class="mobile-menu-link">
+                    <i class="fas fa-info-circle"></i>
+                    About
+                </a>
+                <a href="{% url 'contact' %}" class="mobile-menu-link">
+                    <i class="fas fa-envelope"></i>
+                    Contact
+                </a>
+            </nav>
+            
+            {% if user.is_authenticated %}
+                <div class="dropdown-divider"></div>
+                <nav class="mobile-menu-nav">
+                    <a href="{% url 'student_dashboard' %}" class="mobile-menu-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                    <a href="{% url 'courses:my_courses' %}" class="mobile-menu-link">
+                        <i class="fas fa-graduation-cap"></i>
+                        My Courses
+                    </a>
+                    <a href="{% url 'courses:wishlist' %}" class="mobile-menu-link">
+                        <i class="fas fa-heart"></i>
+                        Wishlist
+                    </a>
+                    <a href="#" class="mobile-menu-link">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </nav>
+                <div class="dropdown-divider"></div>
+                <nav class="mobile-menu-nav">
+                    <a href="{% url 'logout' %}" class="mobile-menu-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </nav>
+            {% else %}
+                <div class="dropdown-divider"></div>
+                <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                    <a href="{% url 'login' %}" class="btn-login-elegant" style="text-align: center;">Login</a>
+                    <a href="{% url 'signup' %}" class="btn-signup-elegant" style="text-align: center;">Sign Up</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Enhanced Footer -->
+    <footer class="footer-elegant">
+        <div class="container">
+            <div class="footer-main">
+                <!-- Brand Column -->
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="{% static 'images/logo-white.svg' %}" alt="Francis Academy">
+                        <span class="footer-logo-text">Francis Academy</span>
+                    </div>
+                    <p class="footer-description">
+                        Empowering learners worldwide with high-quality, accessible education that transforms careers and lives. Join thousands of students advancing their skills today.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="footer-social-link" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="footer-social-link" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="footer-social-link" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="footer-social-link" title="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="footer-social-link" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Categories Column -->
+                <div class="footer-column">
+                    <h3>Categories</h3>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Programming
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Design
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Business
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Marketing
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Data Science
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Support Column -->
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Help Center
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Contact Us
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Community
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            FAQs
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Blog
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Company Column -->
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            About Us
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Careers
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Press Kit
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Partners
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Teach With Us
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Newsletter Column -->
+                <div class="footer-column">
+                    <div class="footer-newsletter">
+                        <h3>Stay Updated</h3>
+                        <p>Subscribe to get the latest courses and exclusive offers.</p>
+                        <form class="newsletter-form" id="newsletterForm">
+                            <input type="email" class="newsletter-input" placeholder="Your email address" required>
+                            <button type="submit" class="newsletter-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                Subscribe
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    <div style="margin-top: 1.5rem;">
+                        <div class="footer-contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>support@francisacademy.com</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+256783876390</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    © 2025 Francis Academy. All rights reserved. Made with <i class="fas fa-heart" style="color: #ef4444;"></i> for learners.
+                </div>
+                <div class="footer-bottom-links">
+                    <a href="#" class="footer-bottom-link">Privacy Policy</a>
+                    <a href="#" class="footer-bottom-link">Terms of Service</a>
+                    <a href="#" class="footer-bottom-link">Cookie Policy</a>
+                    <a href="#" class="footer-bottom-link">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="modal-content bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Join Francis Academy</h2>
+                <p class="text-gray-600">Start your learning journey today</p>
+            </div>
+            
+            <div class="space-y-4 mb-6">
+                <a href="/admin/login/" class="btn btn-primary w-full">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login to Your Account
+                </a>
+                <a href="/admin/login/" class="btn btn-outline w-full">
+                    <i class="fas fa-user-plus"></i>
+                    Create New Account
+                </a>
+            </div>
+            
+            <div class="border-t pt-6">
+                <p class="text-sm text-gray-600 text-center mb-4">
+                    Or continue as guest (limited features)
+                </p>
+                <button onclick="continueAsGuest()" class="btn btn-secondary w-full">
+                    <i class="fas fa-eye"></i>
+                    Continue as Guest
+                </button>
+            </div>
+            
+            <button onclick="closeModal('#loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="{% static 'js/modern-app.js' %}?v=2"></script>
+    <script src="{% static 'js/header-footer-elegant.js' %}?v=2"></script>
+    <script src="{% static 'js/notifications.js' %}?v=2"></script>
+    <script src="{% static 'js/categories-enhanced.js' %}?v=2"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- User Authentication Status for JS -->
+    <script>
+        document.body.dataset.userAuthenticated = '{{ user.is_authenticated|yesno:"true,false" }}';
+    </script>
+    
+    <!-- Additional Styles for Modal -->
+    <style>
+        .modal.active {
+            display: flex !important;
+        }
+        
+        .dropdown-menu {
+            display: none;
+        }
+        
+        .dropdown-menu.active {
+            display: block;
+        }
+        
+        .mobile-menu {
+            display: none;
+        }
+        
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+        }
+    </style>
+</body>
+</html>

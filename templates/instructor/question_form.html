@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Question - {{ quiz.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/instructor.css' %}">
+<style>
+.question-form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.form-header h1 {
+    color: #1f2937;
+    font-size: 1.875rem;
+    margin: 0 0 0.5rem;
+}
+
+.breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.breadcrumb a {
+    color: #8b5cf6;
+    text-decoration: none;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f3f4f6;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+}
+
+.btn-primary {
+    background: #8b5cf6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #7c3aed;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="question-form-container">
+    <div class="form-header">
+        <div class="breadcrumb">
+            <a href="{% url 'courses:instructor_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+            <span>›</span>
+            <a href="{% url 'courses:instructor_course_edit' course.slug %}">{{ course.title }}</a>
+            <span>›</span>
+            <a href="{% url 'courses:instructor_quiz_edit' course.slug quiz.id %}">{{ quiz.title }}</a>
+            <span>›</span>
+            <span>Add Question</span>
+        </div>
+        <h1><i class="fas fa-question-circle"></i> Add Question</h1>
+    </div>
+
+    <form method="post" action="">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.question_text.id_for_label }}">Question Text *</label>
+            {{ form.question_text }}
+            {% if form.question_text.errors %}
+                <div class="error">{{ form.question_text.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ form.question_type.id_for_label }}">Question Type *</label>
+                {{ form.question_type }}
+                {% if form.question_type.errors %}
+                    <div class="error">{{ form.question_type.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.points.id_for_label }}">Points *</label>
+                {{ form.points }}
+                {% if form.points.errors %}
+                    <div class="error">{{ form.points.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.order.id_for_label }}">Order</label>
+            {{ form.order }}
+            <small style="color: #6b7280; font-size: 0.75rem;">Lower numbers appear first</small>
+            {% if form.order.errors %}
+                <div class="error">{{ form.order.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-arrow-right"></i> Create & Add Choices
+            </button>
+            <a href="{% url 'courses:instructor_quiz_edit' course.slug quiz.id %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

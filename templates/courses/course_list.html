@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Courses - Francis Academy{% endblock %}
+
+{% block content %}
+    <!-- Courses Hero -->
+    <section class="courses-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Expand Your Knowledge</h1>
+                <p class="hero-subtitle">Discover our carefully curated courses designed to help you grow professionally and personally</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">{{ courses|length }}+</span>
+                        <span class="stat-label">Courses</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">98%</span>
+                        <span class="stat-label">Satisfaction</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Students</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Categories -->
+    <section class="course-categories">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Browse Our Courses</h2>
+                <p class="section-subtitle">Filter by category to find the perfect course for your needs</p>
+            </div>
+            
+            <div class="category-filter">
+                <a href="{% url 'courses:course_list' %}" class="filter-btn {% if not current_category %}active{% endif %}">All Courses</a>
+                {% for category in categories %}
+                    <a href="{% url 'courses:course_list' %}?category={{ category.slug }}" 
+                       class="filter-btn {% if current_category == category.slug %}active{% endif %}">
+                        <i class="{{ category.icon }}"></i> {{ category.name }}
+                    </a>
+                {% endfor %}
+            </div>
+            
+            <div class="courses-grid">
+                {% for course in courses %}
+                    <div class="course-card">
+                        <div class="course-image">
+                            {% if course.thumbnail %}
+                                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                            {% else %}
+                                <img src="{% static 'images/default-course.jpg' %}" alt="{{ course.title }}">
+                            {% endif %}
+                            <span class="category-badge">{{ course.category.name }}</span>
+                            <div class="course-hover">
+                                <a href="{{ course.get_absolute_url }}" class="preview-btn">Preview Course</a>
+                            </div>
+                        </div>
+                        <div class="course-info">
+                            <h3>{{ course.title }}</h3>
+                            <div class="instructor">
+                                {% if course.instructor.profile_image %}
+                                    <img src="{{ course.instructor.profile_image.url }}" alt="{{ course.instructor.full_name }}">
+                                {% else %}
+                                    <img src="{% static 'images/default-avatar.png' %}" alt="{{ course.instructor.full_name }}">
+                                {% endif %}
+                                <span>By {{ course.instructor.full_name }}</span>
+                            </div>
+                            <div class="course-meta">
+                                <div class="rating">
+                                    <div class="stars">
+                                        {% for i in "12345" %}
+                                            <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="review-count">({{ course.total_reviews }} reviews)</span>
+                                </div>
+                                <div class="duration">
+                                    <i class="far fa-clock"></i> {{ course.duration_hours }} hours
+                                </div>
+                            </div>
+                            <div class="price-container">
+                                {% if course.is_free %}
+                                    <div class="price">Free</div>
+                                {% else %}
+                                    <div class="price">${{ course.price }}</div>
+                                    {% if course.original_price %}
+                                        <div class="original-price">${{ course.original_price }}</div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <a href="{{ course.get_absolute_url }}" class="enroll-btn">View Course</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 text-center">
+                        <p>No courses found matching your criteria.</p>
+                        <a href="{% url 'courses:course_list' %}" class="btn btn-primary">View All Courses</a>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if is_paginated %}
+                <div class="pagination-container">
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1" class="page-link">First</a>
+                            <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+                        {% endif %}
+                        
+                        <span class="page-info">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Last</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

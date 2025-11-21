@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francis Academy - Blog</title>
+    <meta name="description" content="Explore educational resources, learning tips, and industry insights on the Francis Academy Blog.">
+    <link rel="shortcut icon" href="images/francis-logo.png" type="image/x-icon">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Swiper -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper@9/swiper-bundle.min.css" />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="newblog.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-graduation-cap logo-icon"></i>
+                    <span class="logo-word">Francis Academy</span>
+                </a>
+                
+                <nav class="navbar">
+                    <div class="nav-links" id="navLinks">
+                        <a href="index.html" class="nav-item">Home</a>
+                        <div class="courses">
+                            <div onclick="myFunction()"  class="nav-item">Category</div>
+                            <div id="myDropdown" class="course-dropdown">
+                                <div class="a">
+                                    <a href="category.html" class="nav-item">Courses</a>
+                                </div>
+                                <div class="a">
+                                    <a href="kids.html" class="nav-item">Kids</a>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="blog.html" class="nav-item active">Blog</a>
+                        <a href="about.html" class="nav-item">About</a>
+                        <a href="contactus.html" class="nav-item">Contact</a>
+                        <a href="login.html" class="nav-item">Login</a>
+                    </div>
+                    
+                    <div class="search-container">
+                        <input type="text" placeholder="Search..." class="search-input">
+                        <button id ="search-button" class="search-button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    <div class="mobile-menu" onclick="toggleMenu()">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+   
+    <!-- Blog Hero Section -->
+    <section class="blog-hero">
+        <div class="container">
+            <div class="breadcrumbs">
+                <a href="index.html">Home</a> / <span>Blog</span>
+            </div>
+            <h1>Francis Academy Blog</h1>
+            <p>Educational resources, learning tips, and industry insights</p>
+            <div class="blog-search">
+                <input type="text" placeholder="Search articles...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Posts Section -->
+    <section class="featured-post">
+        <div class="container">
+            <div class="featured-container">
+                <div class="featured-image">
+                    <img src="images/me-icon.jpg" alt="About Our Founder" class="founder-img">
+                    <div class="post-badge">Featured</div>
+                </div>
+                <div class="featured-content">
+                    <div class="post-meta">
+                        <span class="category">About Our Founder</span>
+                        <span class="date">Jan 25, 2025</span>
+                        <span class="reading-time">6 min read</span>
+                    </div>
+                    <h2>Education is not a privilege for the few but a fundamental right for all.</h2>
+                    <p class="excerpt">Discover how the journey began.</p>
+                    <a href="founder.html" class="read-more btn btn-outline">Read Article <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="featured-container">
+                <div class="featured-image">
+                    <img src="images/image2-44.webp" alt="Learning Tips">
+                    <div class="post-badge">Featured</div>
+                </div>
+                <div class="featured-content">
+                    <div class="post-meta">
+                        <span class="category">Learning Tips</span>
+                        <span class="date">June 15, 2023</span>
+                        <span class="reading-time">8 min read</span>
+                    </div>
+                    <h2>10 Effective Study Techniques for Online Learners</h2>
+                    <p class="excerpt">Discover proven methods to maximize your learning efficiency in online courses. This comprehensive guide covers everything from time management to active recall techniques.</p>
+                    <a href="blog-post.html" class="read-more btn btn-outline">Read Article <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Content Section -->
+    <section class="blog-main">
+        <div class="container">
+            <div class="blog-container">
+                <div class="blog-posts">
+                    <div class="posts-filter">
+                        <span>Filter by category:</span>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active">All</button>
+                            <button class="filter-btn">Learning Tips</button>
+                            <button class="filter-btn">Technology</button>
+                            <button class="filter-btn">Education</button>
+                            <button class="filter-btn">Kids Learning</button>
+                        </div>
+                    </div>
+                    
+                    <div class="posts-grid">
+                        <article class="blog-post">
+                            <div class="post-image">
+                                <img src="images/futureofeducation-cms-640x360-2.webp" alt="The Future of Online Education">
+                                <div class="category-badge">Technology</div>
+                            </div>
+                            <div class="post-content">
+                                <div class="post-meta">
+                                    <span class="date">May 28, 2023</span>
+                                    <span class="reading-time">5 min read</span>
+                                </div>
+                                <h3>The Future of Online Education: Trends to Watch</h3>
+                                <p class="excerpt">Explore the emerging technologies and methodologies shaping the future of digital learning and how they'll impact students and educators.</p>
+                                <a href="#" class="read-more btn btn-outline">Read More <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </article>
+                        <!-- Additional blog posts can be added here -->
+                    </div>
+                    
+                    <div class="pagination">
+                        <a href="#" class="page-number active">1</a>
+                        <a href="#" class="page-number">2</a>
+                        <a href="#" class="page-number">3</a>
+                        <a href="#" class="next-page">Next <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+                
+                <aside class="blog-sidebar">
+                    <div class="sidebar-widget">
+                        <h3>Categories</h3>
+                        <ul class="categories-list">
+                            <li><a href="#">Learning Tips <span>24</span></a></li>
+                            <li><a href="#">Technology <span>18</span></a></li>
+                            <li><a href="#">Education <span>15</span></a></li>
+                            <li><a href="#">Kids Learning <span>12</span></a></li>
+                            <li><a href="#">Career Development <span>9</span></a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-widget">
+                        <h3>Popular Posts</h3>
+                        <div class="popular-posts">
+                            <div class="popular-post">
+                                <div class="post-thumbnail">
+                                    <img src="images/how-to-stay-motivated-while-learning-online-tips-for-students.webp" alt="Popular Post">
+                                </div>
+                                <div class="post-info">
+                                    <h4><a href="#">How to Stay Motivated When Learning Online</a></h4>
+                                    <span class="post-date">April 12, 2023</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-widget newsletter-widget">
+                        <h3>Subscribe to Newsletter</h3>
+                        <p>Get the latest articles and learning resources delivered to your inbox</p>
+                        <form class="newsletter-form">
+                            <input type="email" placeholder="Your email address">
+                            <button type="submit" class="btn btn-primary">Subscribe</button>
+                        </form>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>Francis Academy</h3>
+                    <p>Empowering students with personalized interactive learning designed to build essential skills for future success.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="category.html">Courses</a></li>
+                        <li><a href="Kids.html">Kids Programs</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contactus.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Refund Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-newsletter">
+                    <h4>Newsletter</h4>
+                    <p>Subscribe to get updates on new courses and special offers.</p>
+                    <form>
+                        <input type="email" placeholder="Your email address">
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Francis Academy. All rights reserved.</p>
+                <div class="legal-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/swiper@9/swiper-bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script src="script2.js"></script>
+</body>
+</html>

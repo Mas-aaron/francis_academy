@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Francis Academy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/instructor.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="instructor-course-form">
+    <div class="container">
+        <!-- Header -->
+        <div class="form-header">
+            <a href="{% url 'courses:instructor_dashboard' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <h1>{{ title }}</h1>
+        </div>
+
+        <div class="form-layout">
+            <!-- Left: Form -->
+            <div class="form-container">
+                <form method="post" enctype="multipart/form-data" id="course-form">
+                    {% csrf_token %}
+
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-info-circle"></i> Basic Information</h2>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.title.id_for_label }}">Course Title *</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="error">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.short_description.id_for_label }}">Short Description *</label>
+                            {{ form.short_description }}
+                            <small>Brief description for course cards (max 300 characters)</small>
+                            {% if form.short_description.errors %}
+                                <div class="error">{{ form.short_description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">Full Description *</label>
+                            {{ form.description }}
+                            <small>Detailed course description with what students will learn</small>
+                            {% if form.description.errors %}
+                                <div class="error">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.category.id_for_label }}">Category *</label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                    <div class="error">{{ form.category.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.difficulty.id_for_label }}">Difficulty Level *</label>
+                                {{ form.difficulty }}
+                                {% if form.difficulty.errors %}
+                                    <div class="error">{{ form.difficulty.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Media -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-image"></i> Course Media</h2>
+
+                        <div class="form-group">
+                            <label for="{{ form.thumbnail.id_for_label }}">Course Thumbnail *</label>
+                            {{ form.thumbnail }}
+                            <small>Recommended size: 1280x720px (16:9 ratio) - JPG or PNG</small>
+                            {% if course.thumbnail %}
+                                <div class="current-image">
+                                    <img src="{{ course.thumbnail.url }}" alt="Current thumbnail">
+                                    <small>Current thumbnail</small>
+                                </div>
+                            {% endif %}
+                            {% if form.thumbnail.errors %}
+                                <div class="error">{{ form.thumbnail.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.preview_video.id_for_label }}">Preview Video URL</label>
+                            {{ form.preview_video }}
+                            <small>YouTube or Vimeo URL for course preview (optional)</small>
+                            {% if form.preview_video.errors %}
+                                <div class="error">{{ form.preview_video.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-dollar-sign"></i> Pricing</h2>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.price.id_for_label }}">Price (USD) *</label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                    <div class="error">{{ form.price.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.original_price.id_for_label }}">Original Price (USD)</label>
+                                {{ form.original_price }}
+                                <small>For showing discount (optional)</small>
+                                {% if form.original_price.errors %}
+                                    <div class="error">{{ form.original_price.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group form-checkbox">
+                            {{ form.is_free }}
+                            <label for="{{ form.is_free.id_for_label }}">This is a free course</label>
+                            {% if form.is_free.errors %}
+                                <div class="error">{{ form.is_free.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Course Details -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-cog"></i> Course Details</h2>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.duration_hours.id_for_label }}">Total Duration (hours) *</label>
+                                {{ form.duration_hours }}
+                                {% if form.duration_hours.errors %}
+                                    <div class="error">{{ form.duration_hours.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.language.id_for_label }}">Language *</label>
+                                {{ form.language }}
+                                {% if form.language.errors %}
+                                    <div class="error">{{ form.language.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.status.id_for_label }}">Status *</label>
+                            {{ form.status }}
+                            <small>Draft = Not visible to students, Published = Live on platform</small>
+                            {% if form.status.errors %}
+                                <div class="error">{{ form.status.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> {% if is_edit %}Update Course{% else %}Create Course{% endif %}
+                        </button>
+                        <a href="{% url 'courses:instructor_dashboard' %}" class="btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right: Lessons (only for edit mode) -->
+            {% if is_edit %}
+            <div class="lessons-sidebar">
+                <!-- Analytics Links -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">
+                    <a href="{% url 'courses:instructor_course_discussions' course.slug %}" 
+                       style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-size: 0.875rem; justify-content: center;">
+                        <i class="fas fa-comments"></i> Discussions
+                    </a>
+                    <a href="{% url 'courses:instructor_quiz_results' course.slug %}" 
+                       style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: #10b981; color: white; text-decoration: none; border-radius: 8px; font-size: 0.875rem; justify-content: center;">
+                        <i class="fas fa-chart-bar"></i> Quiz Results
+                    </a>
+                </div>
+                
+                <div class="lessons-header">
+                    <h2>Course Lessons</h2>
+                    <a href="{% url 'courses:instructor_lesson_create' course.slug %}" class="btn-add-lesson">
+                        <i class="fas fa-plus"></i> Add Lesson
+                    </a>
+                </div>
+
+                {% if lessons %}
+                    <div class="lessons-list">
+                        {% for lesson in lessons %}
+                        <div class="lesson-item">
+                            <div class="lesson-header">
+                                <span class="lesson-order">{{ lesson.order }}</span>
+                                <div class="lesson-info">
+                                    <strong>{{ lesson.title }}</strong>
+                                    <div class="lesson-meta">
+                                        <span class="lesson-type">
+                                            {% if lesson.lesson_type == 'video' %}
+                                                <i class="fas fa-video"></i> Video
+                                            {% elif lesson.lesson_type == 'text' %}
+                                                <i class="fas fa-file-alt"></i> Text
+                                            {% elif lesson.lesson_type == 'quiz' %}
+                                                <i class="fas fa-question-circle"></i> Quiz
+                                            {% else %}
+                                                <i class="fas fa-tasks"></i> Assignment
+                                            {% endif %}
+                                        </span>
+                                        <span class="lesson-duration">{{ lesson.duration_minutes }} min</span>
+                                        {% if lesson.is_preview %}
+                                            <span class="badge-preview">Preview</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <!-- Add Quiz Button -->
+                                {% if lesson.quiz %}
+                                    <a href="{% url 'courses:instructor_quiz_edit' course.slug lesson.quiz.id %}" class="btn-quiz" title="Edit Quiz">
+                                        <i class="fas fa-clipboard-check"></i>
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'courses:instructor_quiz_create' course.slug lesson.id %}" class="btn-add-quiz" title="Add Quiz">
+                                        <i class="fas fa-plus-circle"></i> Quiz
+                                    </a>
+                                {% endif %}
+                                
+                                <a href="{% url 'courses:instructor_lesson_edit' lesson.id %}" class="btn-edit" title="Edit Lesson">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="deleteLesson({{ lesson.id }})" class="btn-delete" title="Delete Lesson">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="lessons-empty">
+                        <i class="fas fa-video"></i>
+                        <p>No lessons yet</p>
+                        <a href="{% url 'courses:instructor_lesson_create' course.slug %}" class="btn-add-lesson">
+                            <i class="fas fa-plus"></i> Add First Lesson
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteLesson(lessonId) {
+    if (!confirm('Are you sure you want to delete this lesson?')) {
+        return;
+    }
+    
+    fetch(`/courses/instructor/lessons/${lessonId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Error deleting lesson: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error deleting lesson');
+        console.error(error);
+    });
+}
+</script>
+{% endblock %}

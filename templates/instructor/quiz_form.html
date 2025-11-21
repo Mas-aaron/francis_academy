@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Quiz - {{ course.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/instructor.css' %}">
+<style>
+.quiz-form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-form-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.quiz-form-header h1 {
+    color: #1f2937;
+    font-size: 1.875rem;
+    margin: 0 0 0.5rem;
+}
+
+.quiz-form-header .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.breadcrumb a {
+    color: #8b5cf6;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.lesson-info {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.lesson-info h3 {
+    margin: 0 0 0.5rem;
+    color: #374151;
+    font-size: 1rem;
+}
+
+.lesson-info p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-section h2 {
+    font-size: 1.25rem;
+    color: #374151;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-section h2 i {
+    color: #8b5cf6;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f3f4f6;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+}
+
+.btn-primary {
+    background: #8b5cf6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #7c3aed;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.info-box {
+    background: #eff6ff;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    border: 1px solid #3b82f6;
+}
+
+.info-box i {
+    color: #3b82f6;
+    margin-right: 0.5rem;
+}
+
+.info-box p {
+    margin: 0;
+    color: #1e40af;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-form-container">
+    <!-- Header -->
+    <div class="quiz-form-header">
+        <div class="breadcrumb">
+            <a href="{% url 'courses:instructor_dashboard' %}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <span>›</span>
+            <a href="{% url 'courses:instructor_course_edit' course.slug %}">{{ course.title }}</a>
+            <span>›</span>
+            <span>Create Quiz</span>
+        </div>
+        <h1><i class="fas fa-clipboard-list"></i> Create Quiz</h1>
+    </div>
+
+    <!-- Lesson Info -->
+    <div class="lesson-info">
+        <h3><i class="fas fa-video"></i> {{ lesson.title }}</h3>
+        <p>Creating quiz for this lesson</p>
+    </div>
+
+    <!-- Info Box -->
+    <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <p>After creating the quiz, you'll be able to add questions. Set up the basic quiz settings below.</p>
+    </div>
+
+    <!-- Quiz Form -->
+    <form method="post" action="">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+            <h2><i class="fas fa-info-circle"></i> Basic Information</h2>
+            
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">Quiz Title *</label>
+                {{ form.title }}
+                <small>Give your quiz a descriptive title</small>
+                {% if form.title.errors %}
+                    <div class="error">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">Description</label>
+                {{ form.description }}
+                <small>Brief description of what this quiz covers</small>
+                {% if form.description.errors %}
+                    <div class="error">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="form-section">
+            <h2><i class="fas fa-cog"></i> Quiz Settings</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.passing_score.id_for_label }}">Passing Score (%) *</label>
+                    {{ form.passing_score }}
+                    <small>Minimum percentage required to pass (0-100)</small>
+                    {% if form.passing_score.errors %}
+                        <div class="error">{{ form.passing_score.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.time_limit.id_for_label }}">Time Limit (minutes)</label>
+                    {{ form.time_limit }}
+                    <small>Leave blank for no time limit</small>
+                    {% if form.time_limit.errors %}
+                        <div class="error">{{ form.time_limit.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Create Quiz & Add Questions
+            </button>
+            <a href="{% url 'courses:instructor_course_edit' course.slug %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

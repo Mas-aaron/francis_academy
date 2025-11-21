@@ -1,0 +1,506 @@
+{% extends 'modern/base.html' %}
+{% load static %}
+
+{% block title %}Explore Courses - Francis Academy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses-improved.css' %}?v=3">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="courses-hero">
+  <div class="courses-hero-background">
+    <div class="hero-shape-1"></div>
+    <div class="hero-shape-2"></div>
+  </div>
+  
+  <div class="container">
+    <div class="courses-hero-content">
+      <h1 class="courses-hero-title">
+        Explore Our <span class="gradient-text">Course Library</span>
+      </h1>
+      <p class="courses-hero-subtitle">
+        Choose from {{ total_courses }} courses across multiple categories. Learn from industry experts and advance your career today.
+      </p>
+      
+      <!-- Hero Search -->
+      <div class="courses-hero-search">
+        <div class="hero-search-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" id="heroSearchInput" placeholder="What do you want to learn today?" value="{{ request.GET.q }}">
+          <button class="hero-search-btn" onclick="performHeroSearch()">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+        
+        <!-- Quick Filters -->
+        <div class="hero-quick-filters">
+          <span>Popular:</span>
+          <button class="quick-filter-btn" data-category="programming">Programming</button>
+          <button class="quick-filter-btn" data-category="design">Design</button>
+          <button class="quick-filter-btn" data-category="business">Business</button>
+          <button class="quick-filter-btn" data-category="data-science">Data Science</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Bar -->
+<section class="courses-stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <i class="fas fa-book-open"></i>
+        <div class="stat-info">
+          <div class="stat-number">{{ total_courses }}</div>
+          <div class="stat-label">Total Courses</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-users"></i>
+        <div class="stat-info">
+          <div class="stat-number">{{ total_students|default:"10,000+" }}</div>
+          <div class="stat-label">Active Students</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-graduation-cap"></i>
+        <div class="stat-info">
+          <div class="stat-number">{{ categories|length }}</div>
+          <div class="stat-label">Categories</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-star"></i>
+        <div class="stat-info">
+          <div class="stat-number">4.8</div>
+          <div class="stat-label">Average Rating</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content -->
+<section class="courses-main-section">
+  <div class="container">
+    <div class="courses-layout">
+      <!-- Sidebar Filters -->
+      <aside class="courses-sidebar" id="coursesSidebar">
+        <div class="sidebar-header">
+          <h3><i class="fas fa-filter"></i> Filters</h3>
+          <button class="sidebar-close" id="sidebarClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <!-- Active Filters -->
+        {% if request.GET.q or request.GET.category or request.GET.level %}
+          <div class="active-filters-section">
+            <div class="active-filters-header">
+              <h4>Active Filters</h4>
+              <button onclick="clearAllFilters()" class="clear-all-btn">Clear All</button>
+            </div>
+            <div class="active-filters-list">
+              {% if request.GET.q %}
+                <span class="filter-tag">
+                  <i class="fas fa-search"></i>
+                  "{{ request.GET.q }}"
+                  <button onclick="removeFilter('q')"><i class="fas fa-times"></i></button>
+                </span>
+              {% endif %}
+              {% if request.GET.category %}
+                <span class="filter-tag">
+                  {{ request.GET.category|title }}
+                  <button onclick="removeFilter('category')"><i class="fas fa-times"></i></button>
+                </span>
+              {% endif %}
+              {% if request.GET.level %}
+                <span class="filter-tag">
+                  {{ request.GET.level|title }}
+                  <button onclick="removeFilter('level')"><i class="fas fa-times"></i></button>
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+        
+        <!-- Categories Filter -->
+        <div class="filter-group">
+          <h4 class="filter-title">Categories</h4>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="radio" name="category" value="" {% if not request.GET.category %}checked{% endif %}>
+              <span>All Categories</span>
+              <span class="filter-count">{{ total_courses }}</span>
+            </label>
+            {% for category in categories %}
+              <label class="filter-option">
+                <input type="radio" name="category" value="{{ category.slug }}" {% if request.GET.category == category.slug %}checked{% endif %}>
+                <span>{{ category.name }}</span>
+                <span class="filter-count">{{ category.course_count|default:0 }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <!-- Level Filter -->
+        <div class="filter-group">
+          <h4 class="filter-title">Level</h4>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="checkbox" name="level" value="beginner" {% if 'beginner' in request.GET.level %}checked{% endif %}>
+              <span>Beginner</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="level" value="intermediate" {% if 'intermediate' in request.GET.level %}checked{% endif %}>
+              <span>Intermediate</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="level" value="advanced" {% if 'advanced' in request.GET.level %}checked{% endif %}>
+              <span>Advanced</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Price Filter -->
+        <div class="filter-group">
+          <h4 class="filter-title">Price</h4>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="radio" name="price" value="" checked>
+              <span>All Prices</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="price" value="free">
+              <span>Free</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="price" value="paid">
+              <span>Paid</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Rating Filter -->
+        <div class="filter-group">
+          <h4 class="filter-title">Rating</h4>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="radio" name="rating" value="4">
+              <span>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="far fa-star"></i>
+                & up
+              </span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="rating" value="3">
+              <span>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="far fa-star"></i>
+                <i class="far fa-star"></i>
+                & up
+              </span>
+            </label>
+          </div>
+        </div>
+      </aside>
+      
+      <!-- Main Content Area -->
+      <div class="courses-content">
+        <!-- Toolbar -->
+        <div class="courses-toolbar">
+          <div class="toolbar-left">
+            <button class="mobile-filter-btn" id="mobileFilterBtn">
+              <i class="fas fa-sliders-h"></i>
+              Filters
+            </button>
+            <p class="results-count">
+              Showing <strong>{{ courses|length }}</strong> of <strong>{{ total_courses }}</strong> courses
+            </p>
+          </div>
+          
+          <div class="toolbar-right">
+            <div class="view-toggle">
+              <button class="view-btn active" data-view="grid" title="Grid View">
+                <i class="fas fa-th"></i>
+              </button>
+              <button class="view-btn" data-view="list" title="List View">
+                <i class="fas fa-list"></i>
+              </button>
+            </div>
+            
+            <select class="sort-select" id="sortSelect">
+              <option value="">Sort By: Default</option>
+              <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest First</option>
+              <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Popular</option>
+              <option value="rating" {% if request.GET.sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+              <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+              <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Improved Courses Grid -->
+        {% if courses %}
+          <div class="courses-grid-improved" id="coursesGrid">
+            {% for course in courses %}
+              <div class="course-card-improved" data-category="{{ course.category.slug }}">
+                <div class="course-image-improved">
+                  <a href="{% url 'course_detail' course.slug %}">
+                    {% if course.thumbnail %}
+                      <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" loading="lazy">
+                    {% else %}
+                      <img src="{% static 'images/default-course.jpg' %}" alt="{{ course.title }}" loading="lazy">
+                    {% endif %}
+                  </a>
+                  
+                  {% if course.is_featured %}
+                    <span class="course-badge-featured">
+                      <i class="fas fa-star"></i> Featured
+                    </span>
+                  {% endif %}
+                  
+                  <span class="course-level-badge">{{ course.level|default:"All Levels" }}</span>
+                  
+                  {% if user.is_authenticated %}
+                    <button class="wishlist-btn-improved" data-course-slug="{{ course.slug }}" title="Add to wishlist">
+                      <i class="far fa-heart"></i>
+                    </button>
+                  {% endif %}
+                  
+                  <div class="course-overlay-improved">
+                    <a href="{% url 'course_detail' course.slug %}" class="btn-view-details-improved">
+                      <i class="fas fa-eye"></i> View Details
+                    </a>
+                  </div>
+                </div>
+                
+                <div class="course-content-improved">
+                  <div class="course-tags-improved">
+                    <span class="course-category-tag-improved">{{ course.category.name }}</span>
+                  </div>
+                  
+                  <h3 class="course-title-improved">
+                    <a href="{% url 'course_detail' course.slug %}">{{ course.title }}</a>
+                  </h3>
+                  
+                  <p class="course-instructor-improved">
+                    <i class="fas fa-user-circle"></i>
+                    {{ course.instructor.full_name }}
+                  </p>
+                  
+                  <div class="course-meta-improved">
+                    <div class="course-rating-improved">
+                      <i class="fas fa-star"></i>
+                      <span>{{ course.average_rating|default:"4.5"|floatformat:1 }}</span>
+                      <span class="rating-count">({{ course.total_enrollments|default:"0" }})</span>
+                    </div>
+                    <div class="course-lessons-improved">
+                      <i class="fas fa-book-open"></i>
+                      <span>{{ course.lessons.count }} lessons</span>
+                    </div>
+                  </div>
+                  
+                  <div class="course-footer-improved">
+                    <div class="course-price-improved">
+                      {% if course.price > 0 %}
+                        <span class="price-current">${{ course.price }}</span>
+                        {% if course.original_price and course.original_price > course.price %}
+                          <span class="price-original">${{ course.original_price }}</span>
+                        {% endif %}
+                      {% else %}
+                        <span class="price-free">Free</span>
+                      {% endif %}
+                    </div>
+                    <a href="{% url 'course_detail' course.slug %}" class="btn-enroll-improved">
+                      Enroll Now
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          
+          <!-- Pagination -->
+          {% if is_paginated %}
+            <div class="pagination-wrapper">
+              <nav class="pagination-nav">
+                {% if page_obj.has_previous %}
+                  <a href="?page=1{{ request.GET.urlencode }}" class="pagination-btn">
+                    <i class="fas fa-angle-double-left"></i>
+                  </a>
+                  <a href="?page={{ page_obj.previous_page_number }}{{ request.GET.urlencode }}" class="pagination-btn">
+                    <i class="fas fa-angle-left"></i>
+                  </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <span class="pagination-btn active">{{ num }}</span>
+                  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{{ request.GET.urlencode }}" class="pagination-btn">{{ num }}</a>
+                  {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                  <a href="?page={{ page_obj.next_page_number }}{{ request.GET.urlencode }}" class="pagination-btn">
+                    <i class="fas fa-angle-right"></i>
+                  </a>
+                  <a href="?page={{ page_obj.paginator.num_pages }}{{ request.GET.urlencode }}" class="pagination-btn">
+                    <i class="fas fa-angle-double-right"></i>
+                  </a>
+                {% endif %}
+              </nav>
+            </div>
+          {% endif %}
+        {% else %}
+          <!-- Empty State -->
+          <div class="empty-state-courses">
+            <div class="empty-state-icon">
+              <i class="fas fa-search"></i>
+            </div>
+            <h3>No Courses Found</h3>
+            <p>
+              {% if request.GET.q %}
+                We couldn't find any courses matching "{{ request.GET.q }}". Try different keywords or browse our categories.
+              {% else %}
+                No courses match your current filters. Try adjusting your search criteria.
+              {% endif %}
+            </p>
+            <div class="empty-state-actions">
+              <button onclick="clearAllFilters()" class="btn-primary-elegant">
+                <i class="fas fa-times"></i>
+                Clear Filters
+              </button>
+              <a href="{% url 'modern_course_list' %}" class="btn-secondary-elegant">
+                <i class="fas fa-home"></i>
+                View All Courses
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="courses-cta-section">
+  <div class="container">
+    <div class="courses-cta-content">
+      <h2>Can't Find What You're Looking For?</h2>
+      <p>Request a custom course or get personalized recommendations from our experts</p>
+      <div class="cta-buttons">
+        <a href="#" class="btn-cta-primary">
+          <i class="fas fa-comments"></i>
+          Contact Us
+        </a>
+        <a href="#" class="btn-cta-secondary">
+          <i class="fas fa-lightbulb"></i>
+          Request a Course
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/courses-elegant.js' %}"></script>
+<script>
+// Enhanced view toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const viewButtons = document.querySelectorAll('.view-btn');
+    const coursesGrid = document.getElementById('coursesGrid');
+    
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const view = this.dataset.view;
+            
+            // Update active button
+            viewButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update grid class
+            if (view === 'list') {
+                coursesGrid.classList.add('list-view');
+            } else {
+                coursesGrid.classList.remove('list-view');
+            }
+            
+            // Store preference
+            localStorage.setItem('courseViewPreference', view);
+        });
+    });
+    
+    // Load saved preference
+    const savedView = localStorage.getItem('courseViewPreference');
+    if (savedView === 'list') {
+        document.querySelector('[data-view="list"]').click();
+    }
+    
+    // Enhanced wishlist functionality
+    const wishlistButtons = document.querySelectorAll('.wishlist-btn-improved');
+    wishlistButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const courseSlug = this.dataset.courseSlug;
+            const icon = this.querySelector('i');
+            
+            // Optimistic UI update
+            const isActive = this.classList.contains('active');
+            if (isActive) {
+                this.classList.remove('active');
+                icon.className = 'far fa-heart';
+            } else {
+                this.classList.add('active');
+                icon.className = 'fas fa-heart';
+            }
+            
+            // Send request
+            fetch(`/courses/course/${courseSlug}/wishlist/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update UI based on actual response
+                if (data.added) {
+                    this.classList.add('active');
+                    icon.className = 'fas fa-heart';
+                } else {
+                    this.classList.remove('active');
+                    icon.className = 'far fa-heart';
+                }
+            })
+            .catch(error => {
+                // Revert optimistic update on error
+                if (isActive) {
+                    this.classList.add('active');
+                    icon.className = 'fas fa-heart';
+                } else {
+                    this.classList.remove('active');
+                    icon.className = 'far fa-heart';
+                }
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends 'modern/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - Francis Academy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/contact-modern.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<!-- Contact Hero -->
+<section class="contact-hero">
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{% url 'home' %}">Home</a> / <span>Contact Us</span>
+        </div>
+        <h1>Let's Connect</h1>
+        <p>We're here to help and answer any questions you might have</p>
+    </div>
+</section>
+
+<!-- Contact Cards -->
+<section class="contact-cards">
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3>Our Location</h3>
+                <p>P.O.Box, 179<br>Learning City, Masindi</p>
+                <a href="#map" class="contact-link">Get Directions <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <h3>Call Us</h3>
+                <p>+256783876390<br>Mon-Fri: 9am-5pm</p>
+                <a href="tel:+256783876390" class="contact-link">Call Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h3>Email Us</h3>
+                <p>info@francisacademy.com<br>support@francisacademy.com</p>
+                <a href="mailto:info@francisacademy.com" class="contact-link">Email Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="contact-form-section">
+    <div class="container">
+        <div class="form-container">
+            <div class="form-intro">
+                <h2>Send Us a Message</h2>
+                <p>Have questions about our courses or need assistance? Fill out the form below and our team will get back to you within 24 hours.</p>
+                <div class="form-social">
+                    <span>Follow us:</span>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <form class="modern-form" id="contactForm" method="post">
+                {% csrf_token %}
+                <div class="form-group dual-inputs">
+                    <div class="input-group">
+                        <input type="text" id="name" name="name" placeholder=" " required>
+                        <label for="name">Your Name</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="email" name="email" placeholder=" " required>
+                        <label for="email">Email Address</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="subject" name="subject" placeholder=" " required>
+                        <label for="subject">Subject</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <select id="inquiry" name="inquiry_type" required>
+                            <option value="" disabled selected></option>
+                            <option value="general">General Inquiry</option>
+                            <option value="courses">Course Information</option>
+                            <option value="technical">Technical Support</option>
+                            <option value="feedback">Feedback</option>
+                        </select>
+                        <label for="inquiry">Type of Inquiry</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <textarea id="message" name="message" rows="5" placeholder=" " required></textarea>
+                        <label for="message">Your Message</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <span>Send Message</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Success Modal -->
+<div class="success-modal" id="successModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <i class="fas fa-check-circle"></i>
+            <h3>Message Sent Successfully!</h3>
+            <button class="close-modal" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="submission-details">
+                <h4>Your Submission Details:</h4>
+                <div class="detail-item">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value" id="submittedName"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value" id="submittedEmail"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Subject:</span>
+                    <span class="detail-value" id="submittedSubject"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Inquiry Type:</span>
+                    <span class="detail-value" id="submittedInquiry"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Message:</span>
+                    <p class="detail-value" id="submittedMessage"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p>Thank you for contacting us! We'll get back to you within 24 hours.</p>
+                <button class="modal-button" id="modalCloseBtn">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Map Section -->
+<section class="map-section" id="map">
+    <div class="container">
+        <h2>Find Us on the Map</h2>
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255242.4480988661!2d31.34308717746742!3d1.6503806000000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x17652cf722fc98eb%3A0xacdb71ad97cedc6!2sKinyara%20Secondary%20School!5e0!3m2!1sen!2sug!4v1744285639349!5m2!1sen!2sug" 
+                    width="600" 
+                    height="450" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    const successModal = document.getElementById('successModal');
+    const closeModal = document.getElementById('closeModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+    // Handle form submission
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(contactForm);
+        
+        // Show loading state
+        const submitBtn = contactForm.querySelector('.submit-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        submitBtn.disabled = true;
+        
+        // Submit form via AJAX
+        fetch('{% url "contact" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success modal with submitted data
+                document.getElementById('submittedName').textContent = formData.get('name');
+                document.getElementById('submittedEmail').textContent = formData.get('email');
+                document.getElementById('submittedSubject').textContent = formData.get('subject');
+                document.getElementById('submittedInquiry').textContent = formData.get('inquiry_type');
+                document.getElementById('submittedMessage').textContent = formData.get('message');
+                
+                successModal.classList.add('active');
+                contactForm.reset();
+            } else {
+                alert('There was an error sending your message. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('There was an error sending your message. Please try again.');
+        })
+        .finally(() => {
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+
+    // Close modal handlers
+    closeModal.addEventListener('click', function() {
+        successModal.classList.remove('active');
+    });
+
+    modalCloseBtn.addEventListener('click', function() {
+        successModal.classList.remove('active');
+    });
+
+    // Close modal when clicking outside
+    successModal.addEventListener('click', function(e) {
+        if (e.target === successModal) {
+            successModal.classList.remove('active');
+        }
+    });
+
+    // Smooth scroll to map when clicking "Get Directions"
+    document.querySelector('a[href="#map"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('map').scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
+{% endblock %}

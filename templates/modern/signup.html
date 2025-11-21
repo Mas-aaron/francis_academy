@@ -1,0 +1,235 @@
+{% extends 'modern/base.html' %}
+{% load static %}
+
+{% block title %}Sign Up - Francis Academy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth-elegant.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Signup Section -->
+<section class="auth-section">
+  <div class="auth-background">
+    <div class="auth-shape-1"></div>
+    <div class="auth-shape-2"></div>
+    <div class="auth-shape-3"></div>
+  </div>
+  
+  <div class="container">
+    <div class="auth-wrapper">
+      <!-- Left Side - Branding -->
+      <div class="auth-branding">
+        <div class="auth-branding-content">
+          <div class="auth-logo">
+            <img src="{% static 'images/logo-white.svg' %}" alt="Francis Academy">
+            <h2>Francis Academy</h2>
+          </div>
+          
+          <h1 class="auth-branding-title">
+            Start Your Learning Journey Today
+          </h1>
+          
+          <p class="auth-branding-subtitle">
+            Join thousands of students mastering new skills and advancing their careers with our expert-led courses.
+          </p>
+          
+          <div class="auth-features">
+            <div class="auth-feature-item">
+              <div class="auth-feature-icon">
+                <i class="fas fa-graduation-cap"></i>
+              </div>
+              <div class="auth-feature-content">
+                <h3>Expert Instructors</h3>
+                <p>Learn from industry professionals with years of experience</p>
+              </div>
+            </div>
+            
+            <div class="auth-feature-item">
+              <div class="auth-feature-icon">
+                <i class="fas fa-certificate"></i>
+              </div>
+              <div class="auth-feature-content">
+                <h3>Certificates</h3>
+                <p>Earn recognized certificates upon course completion</p>
+              </div>
+            </div>
+            
+            <div class="auth-feature-item">
+              <div class="auth-feature-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="auth-feature-content">
+                <h3>Learn At Your Pace</h3>
+                <p>Access courses anytime, anywhere, on any device</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="auth-testimonial">
+            <div class="testimonial-stars">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              "Francis Academy transformed my career. The courses are practical, engaging, and taught by real experts."
+            </p>
+            <p class="testimonial-author">— Sarah Johnson, Web Developer</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Side - Signup Form -->
+      <div class="auth-form-container">
+        <div class="auth-form-wrapper">
+          <div class="auth-form-header">
+            <h2>Create Your Account</h2>
+            <p>Already have an account? <a href="{% url 'login' %}" class="auth-link">Sign In</a></p>
+          </div>
+          
+          {% if messages %}
+            <div class="auth-messages">
+              {% for message in messages %}
+                <div class="auth-message auth-message-{{ message.tags }}">
+                  <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          <!-- Social Signup -->
+          <div class="social-auth">
+            <button class="social-btn social-google">
+              <i class="fab fa-google"></i>
+              Continue with Google
+            </button>
+            <button class="social-btn social-github">
+              <i class="fab fa-github"></i>
+              Continue with GitHub
+            </button>
+          </div>
+          
+          <div class="auth-divider">
+            <span>OR</span>
+          </div>
+          
+          <!-- Signup Form -->
+          <form method="post" action="{% url 'signup' %}" class="auth-form" id="signupForm">
+            {% csrf_token %}
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="first_name">First Name</label>
+                <div class="input-with-icon">
+                  <i class="fas fa-user"></i>
+                  <input type="text" id="first_name" name="first_name" required 
+                         placeholder="John" value="{{ form.first_name.value|default:'' }}">
+                </div>
+                {% if form.first_name.errors %}
+                  <span class="form-error">{{ form.first_name.errors.0 }}</span>
+                {% endif %}
+              </div>
+              
+              <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <div class="input-with-icon">
+                  <i class="fas fa-user"></i>
+                  <input type="text" id="last_name" name="last_name" required 
+                         placeholder="Doe" value="{{ form.last_name.value|default:'' }}">
+                </div>
+                {% if form.last_name.errors %}
+                  <span class="form-error">{{ form.last_name.errors.0 }}</span>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="username">Username</label>
+              <div class="input-with-icon">
+                <i class="fas fa-at"></i>
+                <input type="text" id="username" name="username" required 
+                       placeholder="johndoe" value="{{ form.username.value|default:'' }}">
+              </div>
+              {% if form.username.errors %}
+                <span class="form-error">{{ form.username.errors.0 }}</span>
+              {% endif %}
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <div class="input-with-icon">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" name="email" required 
+                       placeholder="john@example.com" value="{{ form.email.value|default:'' }}">
+              </div>
+              {% if form.email.errors %}
+                <span class="form-error">{{ form.email.errors.0 }}</span>
+              {% endif %}
+            </div>
+            
+            <div class="form-group">
+              <label for="password1">Password</label>
+              <div class="input-with-icon">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password1" name="password1" required 
+                       placeholder="••••••••">
+                <button type="button" class="password-toggle" data-target="password1">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="password-strength" id="passwordStrength">
+                <div class="strength-bar"></div>
+                <span class="strength-text"></span>
+              </div>
+              {% if form.password1.errors %}
+                <span class="form-error">{{ form.password1.errors.0 }}</span>
+              {% endif %}
+            </div>
+            
+            <div class="form-group">
+              <label for="password2">Confirm Password</label>
+              <div class="input-with-icon">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password2" name="password2" required 
+                       placeholder="••••••••">
+                <button type="button" class="password-toggle" data-target="password2">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              {% if form.password2.errors %}
+                <span class="form-error">{{ form.password2.errors.0 }}</span>
+              {% endif %}
+            </div>
+            
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" name="terms" required>
+                <span>I agree to the <a href="#" class="auth-link">Terms of Service</a> and <a href="#" class="auth-link">Privacy Policy</a></span>
+              </label>
+            </div>
+            
+            <button type="submit" class="btn-auth-submit">
+              <span class="btn-text">Create Account</span>
+              <span class="btn-loader" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i> Creating...
+              </span>
+            </button>
+          </form>
+          
+          <div class="auth-footer">
+            <p>By signing up, you'll get access to thousands of courses and learning resources.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/auth-elegant.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load course_extras %}
+
+{% block title %}{{ course.title }} - Learning - Francis Academy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/course-learn-elegant.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+    <div class="course-player-container">
+        <!-- Video Section -->
+        <div class="video-section">
+            <div class="video-player" id="videoPlayer">
+                {% if current_lesson and current_lesson.video_url %}
+                    <video id="mainVideo" controls>
+                        <source src="{{ current_lesson.video_url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <button class="fullscreen-btn" onclick="toggleFullscreen()">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                {% else %}
+                    <div class="video-placeholder">
+                        <i class="fas fa-play-circle" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                        <h3>{% if current_lesson %}{{ current_lesson.title }}{% else %}Select a lesson to start{% endif %}</h3>
+                        <p>Video content will be available soon</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="video-controls">
+                <div class="video-info">
+                    <h2 class="lesson-title-elegant">{% if current_lesson %}{{ current_lesson.title }}{% else %}{{ course.title }}{% endif %}</h2>
+                    <div class="video-actions">
+                        <select class="speed-control" id="speedControl">
+                            <option value="0.5">0.5x</option>
+                            <option value="0.75">0.75x</option>
+                            <option value="1" selected>1x</option>
+                            <option value="1.25">1.25x</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="2">2x</option>
+                        </select>
+                        
+                        {% if enrollment %}
+                            <button class="btn-control-elegant {% if lesson_progress|get_item:current_lesson.id %}completed{% endif %}" onclick="markComplete()" id="completeBtn">
+                                {% if lesson_progress|get_item:current_lesson.id %}
+                                    <i class="fas fa-check"></i> Completed
+                                {% else %}
+                                    <i class="far fa-circle"></i> Mark Complete
+                                {% endif %}
+                            </button>
+                        {% endif %}
+                        
+                        <button class="btn-control-outline" onclick="addBookmark()">
+                            <i class="fas fa-bookmark"></i> Bookmark
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="progress-section">
+                    <div class="video-progress" id="videoProgress">
+                        <div class="video-progress-fill" id="videoProgressFill"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar-elegant">
+            <div class="sidebar-tabs-elegant">
+                <button class="sidebar-tab-elegant active" onclick="showSidebarTab('content')">Content</button>
+                <button class="sidebar-tab-elegant" onclick="showSidebarTab('notes')">Notes</button>
+                <button class="sidebar-tab-elegant" onclick="showSidebarTab('discussions')">Q&A</button>
+            </div>
+            
+            <div class="sidebar-content-elegant">
+                <!-- Course Content Tab -->
+                <div id="content-tab" class="tab-content-elegant active">
+                    <div class="course-overview-elegant">
+                        {% if enrollment %}
+                            <div class="stat-card-elegant" style="margin-bottom: 1rem;">
+                                <div class="stat-label">Your Progress</div>
+                                <div class="stat-value">{{ enrollment.progress_percentage }}%</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <ul class="lesson-list-elegant">
+                        {% for lesson in lessons %}
+                            <li class="lesson-item-elegant {% if lesson == current_lesson %}active{% endif %}" 
+                                onclick="loadLesson('{{ lesson.slug }}')">
+                                <div class="lesson-status-elegant">
+                                    {% if lesson_progress|get_item:lesson.id %}
+                                        <i class="fas fa-check-circle"></i>
+                                    {% elif lesson == current_lesson %}
+                                        <i class="fas fa-play-circle"></i>
+                                    {% else %}
+                                        <i class="far fa-circle"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="lesson-details-elegant">
+                                    <h4>{{ lesson.title }}</h4>
+                                    <div class="lesson-duration-elegant">
+                                        <i class="far fa-clock"></i> {{ lesson.duration_minutes|default:"5" }} min
+                                        {% if lesson.lesson_type == 'quiz' %}
+                                            <i class="fas fa-question-circle"></i> Quiz
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                <!-- Notes Tab -->
+                <div id="notes-tab" class="tab-content-elegant" style="display: none;">
+                    {% if user.is_authenticated %}
+                        <div class="notes-section-elegant">
+                            <div class="note-form-elegant">
+                                <textarea id="noteContent" placeholder="Add a note at current time..."></textarea>
+                                <button class="btn-control-elegant" onclick="saveNote()" style="margin-top: 0.75rem;">
+                                    <i class="fas fa-save"></i> Save Note
+                                </button>
+                            </div>
+                            
+                            <ul class="notes-list-elegant" id="notesList">
+                                <li class="empty-state-elegant">
+                                    <i class="fas fa-sticky-note"></i>
+                                    <p>No notes yet. Add your first note above!</p>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <div class="empty-state-elegant">
+                            <i class="fas fa-lock"></i>
+                            <p><a href="{% url 'login' %}">Login</a> to take notes</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Discussions Tab -->
+                <div id="discussions-tab" class="tab-content-elegant" style="display: none;">
+                    {% if user.is_authenticated %}
+                        <div class="discussion-section-elegant">
+                            <button class="btn-control-elegant" onclick="showNewDiscussion()" style="margin-bottom: 1rem;">
+                                <i class="fas fa-plus"></i> Ask Question
+                            </button>
+                            
+                            <div id="newDiscussionForm" class="discussion-form-elegant" style="display: none; margin-bottom: 1.5rem;">
+                                <input type="text" id="discussionTitle" placeholder="Question title..." style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 0.75rem; font-size: 0.875rem;">
+                                <textarea id="discussionContent" placeholder="Describe your question..." style="width: 100%; min-height: 100px; padding: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 0.75rem; font-size: 0.875rem; resize: vertical;"></textarea>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn-control-elegant" onclick="saveDiscussion()">Post Question</button>
+                                    <button class="btn-control-outline" onclick="hideNewDiscussion()">Cancel</button>
+                                </div>
+                            </div>
+                            
+                            <ul class="discussion-list-elegant" id="discussionsList">
+                                <li class="empty-state-elegant">
+                                    <i class="fas fa-comments"></i>
+                                    <p>No discussions yet. Ask a question!</p>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <div class="empty-state-elegant">
+                            <i class="fas fa-lock"></i>
+                            <p><a href="{% url 'login' %}">Login</a> to participate in discussions</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentVideo = null;
+    let currentLesson = {{ current_lesson.id|default:'null' }};
+    let courseSlug = '{{ course.slug }}';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize video player
+        currentVideo = document.getElementById('mainVideo');
+        if (currentVideo) {
+            setupVideoPlayer();
+        }
+        
+        // Set progress bars
+        const progressBars = document.querySelectorAll('.progress-fill[data-progress]');
+        progressBars.forEach(bar => {
+            const progress = bar.getAttribute('data-progress');
+            bar.style.width = progress + '%';
+        });
+        
+        // Load initial data
+        loadNotes();
+        loadDiscussions();
+    });
+    
+    function setupVideoPlayer() {
+        // Speed control
+        document.getElementById('speedControl').addEventListener('change', function() {
+            currentVideo.playbackRate = parseFloat(this.value);
+        });
+        
+        // Progress tracking
+        currentVideo.addEventListener('timeupdate', function() {
+            const progress = (currentVideo.currentTime / currentVideo.duration) * 100;
+            document.getElementById('videoProgressFill').style.width = progress + '%';
+            
+            // Update time display
+            document.getElementById('currentTime').textContent = formatTime(currentVideo.currentTime);
+            document.getElementById('duration').textContent = formatTime(currentVideo.duration);
+        });
+        
+        // Click to seek
+        document.getElementById('videoProgress').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            currentVideo.currentTime = pos * currentVideo.duration;
+        });
+        
+        // Auto-mark complete when video ends
+        currentVideo.addEventListener('ended', function() {
+            if ({{ enrollment|yesno:'true,false' }}) {
+                markComplete();
+            }
+        });
+    }
+    
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return mins + ':' + (secs < 10 ? '0' : '') + secs;
+    }
+    
+    function showSidebarTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content-elegant').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        document.querySelectorAll('.sidebar-tab-elegant').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabName + '-tab').style.display = 'block';
+        event.target.classList.add('active');
+    }
+    
+    function loadLesson(lessonSlug) {
+        window.location.href = `?lesson=${lessonSlug}`;
+    }
+    
+    function markComplete() {
+        if (!currentLesson) return;
+        
+        fetch(`/courses/course/${courseSlug}/lesson/${currentLesson}/complete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const btn = document.getElementById('completeBtn');
+            if (data.completed) {
+                btn.innerHTML = '<i class="fas fa-check"></i> Completed';
+                btn.classList.add('btn-success');
+            }
+            // Update progress
+            location.reload();
+        });
+    }
+    
+    function addBookmark() {
+        if (!currentVideo || !{{ user.is_authenticated|yesno:'true,false' }}) {
+            alert('Please login to add bookmarks');
+            return;
+        }
+        
+        const timestamp = Math.floor(currentVideo.currentTime);
+        const title = prompt('Bookmark title:', `Bookmark at ${formatTime(timestamp)}`);
+        
+        if (title) {
+            // Save bookmark (implement API endpoint)
+            console.log('Saving bookmark:', { title, timestamp, lesson: currentLesson });
+        }
+    }
+    
+    function saveNote() {
+        const content = document.getElementById('noteContent').value.trim();
+        if (!content) return;
+        
+        const timestamp = currentVideo ? Math.floor(currentVideo.currentTime) : 0;
+        
+        // Save note (implement API endpoint)
+        console.log('Saving note:', { content, timestamp, lesson: currentLesson });
+        
+        // Clear form
+        document.getElementById('noteContent').value = '';
+        loadNotes();
+    }
+    
+    function loadNotes() {
+        // Load notes from API
+        document.getElementById('notesList').innerHTML = '<p>Notes will be loaded here...</p>';
+    }
+    
+    function showNewDiscussion() {
+        document.getElementById('newDiscussionForm').style.display = 'block';
+    }
+    
+    function hideNewDiscussion() {
+        document.getElementById('newDiscussionForm').style.display = 'none';
+    }
+    
+    function saveDiscussion() {
+        const title = document.getElementById('discussionTitle').value.trim();
+        const content = document.getElementById('discussionContent').value.trim();
+        
+        if (!title || !content) {
+            alert('Please fill in both title and content');
+            return;
+        }
+        
+        // Save discussion (implement API endpoint)
+        console.log('Saving discussion:', { title, content, lesson: currentLesson });
+        
+        hideNewDiscussion();
+        loadDiscussions();
+    }
+    
+    function loadDiscussions() {
+        // Load discussions from API
+        document.getElementById('discussionsList').innerHTML = '<p>Discussions will be loaded here...</p>';
+    }
+    
+    function toggleFullscreen() {
+        const player = document.getElementById('videoPlayer');
+        if (!document.fullscreenElement) {
+            player.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }
+</script>
+{% endblock %}

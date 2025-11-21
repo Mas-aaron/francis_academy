@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - Discussions{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/instructor.css' %}">
+<style>
+.discussions-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.discussion-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.discussion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.discussion-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.discussion-meta {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.discussion-content {
+    color: #374151;
+    line-height: 1.6;
+    margin: 1rem 0;
+}
+
+.replies-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.reply-item {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.reply-header {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.reply-content {
+    color: #6b7280;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-lesson {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-replies {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #6366f1;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: #4f46e5;
+    transform: translateY(-1px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="discussions-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="margin: 0; color: #1f2937;">{{ course.title }} - Discussions</h1>
+            <p style="color: #6b7280; margin-top: 0.5rem;">View and manage student discussions</p>
+        </div>
+        <a href="{% url 'courses:instructor_course_edit' course.slug %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Course
+        </a>
+    </div>
+
+    {% if discussions %}
+        {% for discussion in discussions %}
+        <div class="discussion-card">
+            <div class="discussion-header">
+                <div style="flex: 1;">
+                    <h3 class="discussion-title">{{ discussion.title }}</h3>
+                    <div class="discussion-meta">
+                        <i class="fas fa-user"></i> {{ discussion.user.get_full_name|default:discussion.user.username }}
+                        • <i class="far fa-clock"></i> {{ discussion.created_at|date:"M d, Y \a\t g:i A" }}
+                        • <span class="badge badge-lesson">{{ discussion.lesson.title }}</span>
+                    </div>
+                </div>
+                <span class="badge badge-replies">
+                    <i class="fas fa-comments"></i> {{ discussion.replies.count }} {{ discussion.replies.count|pluralize:"reply,replies" }}
+                </span>
+            </div>
+
+            <div class="discussion-content">
+                {{ discussion.content }}
+            </div>
+
+            {% if discussion.replies.all %}
+            <div class="replies-section">
+                <h4 style="margin: 0 0 1rem; color: #374151;">
+                    <i class="fas fa-reply"></i> Replies
+                </h4>
+                {% for reply in discussion.replies.all %}
+                <div class="reply-item">
+                    <div class="reply-header">
+                        {{ reply.user.get_full_name|default:reply.user.username }}
+                        <span style="font-weight: normal; color: #9ca3af;">• {{ reply.created_at|date:"M d, Y \a\t g:i A" }}</span>
+                    </div>
+                    <div class="reply-content">{{ reply.content }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Reply Form -->
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+                <form method="post" action="{% url 'courses:create_reply' course.slug discussion.id %}" onsubmit="return handleReply(event, {{ discussion.id }})">
+                    {% csrf_token %}
+                    <textarea name="content" 
+                              id="reply_{{ discussion.id }}" 
+                              placeholder="Write your reply..." 
+                              style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; resize: vertical; min-height: 80px; font-family: inherit;"
+                              required></textarea>
+                    <button type="submit" 
+                            style="margin-top: 0.75rem; padding: 0.5rem 1.5rem; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                        <i class="fas fa-paper-plane"></i> Post Reply
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-comments" style="font-size: 4rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+            <h3 style="color: #374151;">No discussions yet</h3>
+            <p>Students haven't started any discussions for this course.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function handleReply(event, discussionId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload page to show new reply
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to post reply');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to post reply');
+    });
+    
+    return false;
+}
+</script>
+{% endblock %}

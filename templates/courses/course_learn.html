@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - Learning - Francis Academy{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+    <div class="course-learn-container">
+        <div class="container-fluid">
+            <div class="course-learn-layout">
+                <!-- Sidebar with lessons -->
+                <div class="lessons-sidebar">
+                    <div class="course-info">
+                        <h3>{{ course.title }}</h3>
+                        {% if enrollment %}
+                            <div class="progress-info">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-progress="{{ enrollment.progress_percentage }}"></div>
+                                </div>
+                                <span>{{ enrollment.progress_percentage }}% Complete</span>
+                            </div>
+                        {% else %}
+                            <div class="registration-prompt">
+                                <p><i class="fas fa-user-plus"></i> <a href="/admin/login/">Register</a> to track your progress!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="lessons-list">
+                        <h4>Course Content</h4>
+                        {% for lesson in lessons %}
+                            <div class="lesson-item {% if lesson == current_lesson %}active{% endif %}">
+                                <a href="?lesson={{ lesson.slug }}" class="lesson-link">
+                                    <div class="lesson-status">
+                                        {% if lesson_progress|get_item:lesson.id %}
+                                            <i class="fas fa-check-circle completed"></i>
+                                        {% else %}
+                                            <i class="far fa-circle"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="lesson-details">
+                                        <h5>{{ lesson.title }}</h5>
+                                        <span class="lesson-duration">{{ lesson.duration_minutes }} min</span>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Main content area -->
+                <div class="lesson-content">
+                    {% if current_lesson %}
+                        <div class="lesson-header">
+                            <h1>{{ current_lesson.title }}</h1>
+                            <div class="lesson-actions">
+                                {% if enrollment %}
+                                    <button class="btn btn-outline" onclick="markComplete(this)" data-lesson-id="{{ current_lesson.id }}" data-course-slug="{{ course.slug }}">
+                                        {% if lesson_progress|get_item:current_lesson.id %}
+                                            <i class="fas fa-check"></i> Completed
+                                        {% else %}
+                                            <i class="far fa-circle"></i> Mark Complete
+                                        {% endif %}
+                                    </button>
+                                {% else %}
+                                    <a href="/admin/login/" class="btn btn-outline">
+                                        <i class="fas fa-user-plus"></i> Register to Track Progress
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="lesson-body">
+                            {% if current_lesson.lesson_type == 'video' %}
+                                <div class="video-container">
+                                    {% if current_lesson.video_url %}
+                                        <iframe src="{{ current_lesson.video_url }}" frameborder="0" allowfullscreen></iframe>
+                                    {% else %}
+                                        <div class="video-placeholder">
+                                            <i class="fas fa-play-circle"></i>
+                                            <p>Video content will be available soon</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            {% if current_lesson.description %}
+                                <div class="lesson-description">
+                                    <h3>About this lesson</h3>
+                                    {{ current_lesson.description|linebreaks }}
+                                </div>
+                            {% endif %}
+                            
+                            {% if current_lesson.text_content %}
+                                <div class="lesson-text">
+                                    {{ current_lesson.text_content|linebreaks }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="lesson-navigation">
+                            {% for lesson in lessons %}
+                                {% if lesson == current_lesson %}
+                                    {% if not forloop.first %}
+                                        <a href="?lesson={{ lessons|slice:forloop.counter0|slice:':1'|first.slug }}" class="btn btn-outline">
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </a>
+                                    {% endif %}
+                                    {% if not forloop.last %}
+                                        <a href="?lesson={{ lessons|slice:forloop.counter|slice:':1'|first.slug }}" class="btn btn-primary">
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-lesson">
+                            <h2>Welcome to {{ course.title }}</h2>
+                            <p>Select a lesson from the sidebar to begin learning.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set progress bar widths
+    document.addEventListener('DOMContentLoaded', function() {
+        const progressBars = document.querySelectorAll('.progress-fill[data-progress]');
+        progressBars.forEach(bar => {
+            const progress = bar.getAttribute('data-progress');
+            bar.style.width = progress + '%';
+        });
+    });
+
+    function markComplete(button) {
+        const lessonId = button.getAttribute('data-lesson-id');
+        const courseSlug = button.getAttribute('data-course-slug');
+        
+        fetch(`/courses/course/${courseSlug}/lesson/${lessonId}/complete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Reload page to update progress
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+{% endblock %}

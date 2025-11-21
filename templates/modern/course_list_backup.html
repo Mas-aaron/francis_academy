@@ -1,0 +1,382 @@
+{% extends 'modern/base.html' %}
+{% load static %}
+
+{% block title %}All Courses - Francis Academy{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="pt-24 pb-12 bg-gray-50">
+  <div class="container">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-4">All Courses</h1>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Discover our comprehensive collection of courses designed to help you master new skills and advance your career
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Search & Filters -->
+<section class="py-8 bg-white border-b">
+  <div class="container">
+    <div class="flex flex-col lg:flex-row gap-6 items-center">
+      <!-- Search -->
+      <div class="search-container flex-1 max-w-md">
+        <div class="search-icon">
+          <i class="fas fa-search"></i>
+        </div>
+        <input type="text" class="search-input" placeholder="Search courses..." value="{{ request.GET.q }}">
+      </div>
+      
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-3">
+        <select class="filter-select px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary">
+          <option value="">All Categories</option>
+          {% for category in categories %}
+            <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
+              {{ category.name }}
+            </option>
+          {% endfor %}
+        </select>
+        
+        <select class="filter-select px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary">
+          <option value="">All Levels</option>
+          <option value="beginner" {% if request.GET.level == 'beginner' %}selected{% endif %}>Beginner</option>
+          <option value="intermediate" {% if request.GET.level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+          <option value="advanced" {% if request.GET.level == 'advanced' %}selected{% endif %}>Advanced</option>
+        </select>
+        
+        <select class="filter-select px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary">
+          <option value="">Sort By</option>
+          <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest</option>
+          <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Popular</option>
+          <option value="rating" {% if request.GET.sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+          <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Active Filters -->
+    {% if request.GET.q or request.GET.category or request.GET.level %}
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="text-sm text-gray-600">Active filters:</span>
+        {% if request.GET.q %}
+          <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary text-white text-sm rounded-full">
+            Search: "{{ request.GET.q }}"
+            <button onclick="removeFilter('q')" class="ml-1 hover:bg-primary-dark rounded-full p-1">
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          </span>
+        {% endif %}
+        {% if request.GET.category %}
+          <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary text-white text-sm rounded-full">
+            Category: {{ request.GET.category|title }}
+            <button onclick="removeFilter('category')" class="ml-1 hover:bg-primary-dark rounded-full p-1">
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          </span>
+        {% endif %}
+        {% if request.GET.level %}
+          <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary text-white text-sm rounded-full">
+            Level: {{ request.GET.level|title }}
+            <button onclick="removeFilter('level')" class="ml-1 hover:bg-primary-dark rounded-full p-1">
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          </span>
+        {% endif %}
+        <button onclick="clearAllFilters()" class="text-sm text-primary hover:text-primary-dark">
+          Clear all
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Results -->
+<section class="py-12">
+  <div class="container">
+    <!-- Results Count -->
+    <div class="mb-8">
+      <p class="text-gray-600">
+        Showing {{ courses|length }} of {{ total_courses }} course{{ total_courses|pluralize }}
+      </p>
+    </div>
+    
+    <!-- Course Grid -->
+    {% if courses %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for course in courses %}
+          <div class="course-card animate-fade-in-up" data-category="{{ course.category.slug }}">
+            <div class="course-image">
+              {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+              {% else %}
+                <img src="{% static 'images/default-course.jpg' %}" alt="{{ course.title }}">
+              {% endif %}
+              
+              {% if course.is_featured %}
+                <div class="course-badge">Featured</div>
+              {% endif %}
+            </div>
+            
+            <div class="course-content">
+              <div class="course-category">{{ course.category.name }}</div>
+              <h3 class="course-title">{{ course.title }}</h3>
+              <p class="course-instructor">By {{ course.instructor.full_name }}</p>
+              
+              <div class="course-meta">
+                <div class="course-rating">
+                  <div class="flex items-center gap-1">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= course.average_rating|floatformat:0 %}
+                        <i class="fas fa-star text-yellow-400"></i>
+                      {% else %}
+                        <i class="far fa-star text-gray-300"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <span class="ml-2 text-sm">{{ course.average_rating|floatformat:1 }}</span>
+                </div>
+                <div class="course-students text-sm text-gray-500">
+                  <i class="fas fa-users"></i>
+                  {{ course.total_enrollments|default:0 }}
+                </div>
+              </div>
+              
+              <!-- Course Stats -->
+              <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                <span><i class="fas fa-clock"></i> {{ course.duration_hours }}h</span>
+                <span><i class="fas fa-play-circle"></i> {{ course.lessons.count }} lessons</span>
+                <span class="px-2 py-1 bg-gray-100 rounded text-xs">{{ course.level|title }}</span>
+              </div>
+              
+              {% if course.price > 0 %}
+                <div class="course-price">
+                  <span class="price-current">${{ course.price }}</span>
+                  {% if course.original_price and course.original_price > course.price %}
+                    <span class="price-original">${{ course.original_price }}</span>
+                    <span class="discount-badge">
+                      {{ course.discount_percentage }}% OFF
+                    </span>
+                  {% endif %}
+                </div>
+              {% else %}
+                <div class="course-price">
+                  <span class="price-current text-success font-bold">Free</span>
+                </div>
+              {% endif %}
+              
+              <div class="course-actions">
+                <button class="btn btn-primary flex-1" 
+                        data-action="enroll" 
+                        data-course-slug="{{ course.slug }}"
+                        data-course-title="{{ course.title }}">
+                  <i class="fas fa-play"></i>
+                  Enroll Now
+                </button>
+                <button class="btn btn-outline" 
+                        data-action="preview"
+                        data-course-slug="{{ course.slug }}"
+                        title="Preview Course">
+                  <i class="fas fa-eye"></i>
+                </button>
+                {% if user.is_authenticated %}
+                  <button class="btn btn-ghost wishlist-btn" 
+                          data-course-slug="{{ course.slug }}"
+                          title="Add to Wishlist">
+                    <i class="far fa-heart"></i>
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Pagination -->
+      {% if is_paginated %}
+        <div class="mt-12 flex justify-center">
+          <nav class="flex items-center gap-2">
+            {% if page_obj.has_previous %}
+              <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+                 class="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
+                First
+              </a>
+              <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+                 class="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                <span class="px-3 py-2 text-sm bg-primary text-white rounded-lg">{{ num }}</span>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+                   class="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">{{ num }}</a>
+              {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+                 class="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+                 class="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
+                Last
+              </a>
+            {% endif %}
+          </nav>
+        </div>
+      {% endif %}
+      
+    {% else %}
+      <!-- No Results -->
+      <div class="text-center py-16">
+        <i class="fas fa-search text-6xl text-gray-300 mb-6"></i>
+        <h3 class="text-2xl font-semibold text-gray-600 mb-4">No courses found</h3>
+        <p class="text-gray-500 mb-6">
+          {% if request.GET.q %}
+            No courses match your search for "{{ request.GET.q }}". Try different keywords or browse our categories.
+          {% else %}
+            No courses match your current filters. Try adjusting your search criteria.
+          {% endif %}
+        </p>
+        <div class="flex gap-4 justify-center">
+          <button onclick="clearAllFilters()" class="btn btn-primary">
+            Clear Filters
+          </button>
+          <a href="{% url 'modern_course_list' %}" class="btn btn-outline">
+            View All Courses
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .discount-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+  }
+  
+  .filter-select {
+    min-width: 120px;
+  }
+  
+  .search-container {
+    position: relative;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    z-index: 1;
+  }
+  
+  .search-input {
+    padding-left: 40px;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle filter changes
+  document.querySelectorAll('.filter-select').forEach(select => {
+    select.addEventListener('change', function() {
+      updateFilters();
+    });
+  });
+  
+  // Handle search input
+  const searchInput = document.querySelector('.search-input');
+  if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        updateFilters();
+      }, 500);
+    });
+  }
+});
+
+function updateFilters() {
+  const params = new URLSearchParams();
+  
+  // Get search query
+  const searchInput = document.querySelector('.search-input');
+  if (searchInput && searchInput.value.trim()) {
+    params.set('q', searchInput.value.trim());
+  }
+  
+  // Get filter values
+  document.querySelectorAll('.filter-select').forEach(select => {
+    if (select.value) {
+      const name = select.name || getFilterName(select);
+      params.set(name, select.value);
+    }
+  });
+  
+  // Update URL
+  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+  window.location.href = newUrl;
+}
+
+function getFilterName(select) {
+  // Determine filter name based on options
+  if (select.querySelector('option[value="beginner"]')) return 'level';
+  if (select.querySelector('option[value="newest"]')) return 'sort';
+  return 'category';
+}
+
+function removeFilter(filterName) {
+  const params = new URLSearchParams(window.location.search);
+  params.delete(filterName);
+  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+  window.location.href = newUrl;
+}
+
+function clearAllFilters() {
+  window.location.href = window.location.pathname;
+}
+
+// Wishlist functionality
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.wishlist-btn')) {
+    e.preventDefault();
+    const btn = e.target.closest('.wishlist-btn');
+    const courseSlug = btn.dataset.courseSlug;
+    
+    // Toggle wishlist (implement AJAX call here)
+    const icon = btn.querySelector('i');
+    if (icon.classList.contains('far')) {
+      icon.classList.remove('far');
+      icon.classList.add('fas');
+      btn.title = 'Remove from Wishlist';
+      app.showToast('success', 'Added to Wishlist', 'Course saved to your wishlist');
+    } else {
+      icon.classList.remove('fas');
+      icon.classList.add('far');
+      btn.title = 'Add to Wishlist';
+      app.showToast('info', 'Removed from Wishlist', 'Course removed from your wishlist');
+    }
+  }
+});
+</script>
+{% endblock %}

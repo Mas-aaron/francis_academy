@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Francis Academy - Our Mission, Vision, and Values</title>
+    <link rel="shortcut icon" href="images/francis-logo.png" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="about.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-graduation-cap logo-icon"></i>
+                    <span class="logo-word">Francis Academy</span>
+                </a>
+                
+                <nav class="navbar">
+                    <div class="nav-links" id="navLinks">
+                        <a href="index.html" class="nav-item">Home</a>
+                        <div class="courses">
+                            <div onclick="myFunction()"  class="nav-item">Category</div>
+                            <div id="myDropdown" class="course-dropdown">
+                                <div class="a">
+                                    <a href="category.html" class="nav-item">Courses</a>
+                                </div>
+                                <div class="a">
+                                    <a href="kids.html" class="nav-item">Kids</a>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="blog.html" class="nav-item">Blog</a>
+                        <a href="about.html" class="nav-item active">About</a>
+                        <a href="contactus.html" class="nav-item">Contact</a>
+                        <a href="login.html" class="nav-item">Login</a>
+                    </div>
+                    
+                    <div class="search-container">
+                        <input type="text" placeholder="Search..." class="search-input">
+                        <button id ="search-button" class="search-button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    <div class="mobile-menu" onclick="toggleMenu()">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- About Hero -->
+    <section class="about-hero">
+        <div class="container">
+            <h1>About Francis Academy</h1>
+            <p>Empowering learners worldwide through innovative education</p>
+        </div>
+    </section>
+
+    <!-- Our Story -->
+    <section class="our-story">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">OUR JOURNEY</span>
+                <h2 class="section-title">From Humble Beginnings to Global Impact</h2>
+            </div>
+            
+            <div class="story-content">
+                <div class="story-text">
+                    <p>Founded in 2015 by Francis Muganga, Francis Academy began as a small initiative to provide quality education to underserved communities in Uganda. What started as a single classroom with 20 students has grown into a global online learning platform serving over 250,000 learners across 35 countries.</p>
+                    
+                    <p>Our founder's vision was simple yet powerful: to create an educational institution that breaks down barriers to learning, regardless of geographical location, economic status, or background. Today, we continue to uphold this vision while embracing technological advancements to make learning more accessible, engaging, and effective.</p>
+                    
+                    <div class="milestones">
+                        <div class="milestone">
+                            <div class="number">250K+</div>
+                            <div class="label">Students</div>
+                        </div>
+                        <div class="milestone">
+                            <div class="number">500+</div>
+                            <div class="label">Courses</div>
+                        </div>
+                        <div class="milestone">
+                            <div class="number">35</div>
+                            <div class="label">Countries</div>
+                        </div>
+                        <div class="milestone">
+                            <div class="number">98%</div>
+                            <div class="label">Satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="story-image">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Francis Academy Classroom">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Mission -->
+    <section class="our-mission">
+        <div class="container">
+            <div class="mission-content">
+                <div class="mission-image">
+                    <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Students learning">
+                </div>
+                <div class="mission-text">
+                    <span class="section-subtitle">OUR PURPOSE</span>
+                    <h2 class="section-title">Mission & Vision</h2>
+                    
+                    <div class="mission-card">
+                        <h3>Our Mission</h3>
+                        <p>To democratize education by providing affordable, high-quality learning experiences that empower individuals to achieve their personal and professional goals, regardless of their background or location.</p>
+                    </div>
+                    
+                    <div class="vision-card">
+                        <h3>Our Vision</h3>
+                        <p>To become the world's most accessible and impactful learning platform, transforming lives through education and creating opportunities for millions of learners across the globe.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Values -->
+    <section class="our-values">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">WHAT GUIDES US</span>
+                <h2 class="section-title">Our Core Values</h2>
+            </div>
+            
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Excellence</h3>
+                    <p>We are committed to delivering the highest quality education through rigorous standards, expert instructors, and continuous improvement.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-globe-africa"></i>
+                    </div>
+                    <h3>Accessibility</h3>
+                    <p>We believe education should be available to all, which is why we offer affordable pricing, scholarships, and mobile-friendly learning.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Community</h3>
+                    <p>We foster a supportive learning environment where students and instructors collaborate and grow together.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Innovation</h3>
+                    <p>We embrace new technologies and teaching methods to create engaging, effective learning experiences.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3>Empathy</h3>
+                    <p>We understand the challenges learners face and design our programs with their needs at the center.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Integrity</h3>
+                    <p>We operate with honesty, transparency, and accountability in all our interactions and decisions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Team -->
+    <section class="our-team">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">MEET THE TEAM</span>
+                <h2 class="section-title">Dedicated Educators & Innovators</h2>
+                <p>Our team of passionate professionals is committed to transforming education and empowering learners worldwide.</p>
+            </div>
+            
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="images/me-icon.jpg" alt="Francis Muganga">
+                    </div>
+                    <h3>Francis Muganga</h3>
+                    <p class="position">Founder & CEO</p>
+                    <p class="bio">Education innovator with 15+ years experience in curriculum development and edtech solutions.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="images/smiling-handsome-female.jpg" alt="Judith Mandhawun">
+                    </div>
+                    <h3>Judith Mandhawun</h3>
+                    <p class="position">Chief Learning Officer</p>
+                    <p class="bio">Learning specialist focused on creating engaging, effective educational experiences.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="images/Aaron.jpg" alt="Masendi Aaron">
+                    </div>
+                    <h3>Masendi Aaron</h3>
+                    <p class="position">Technology Director</p>
+                    <p class="bio">Tech enthusiast building the platforms that power our learning experiences.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="images/image-about 1.avif" alt="Atugonza Jane">
+                    </div>
+                    <h3>Atugonza Jane</h3>
+                    <p class="position">Student Success Manager</p>
+                    <p class="bio">Dedicated to ensuring every learner achieves their educational goals.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="join-team">
+                <p>Want to join our team of passionate educators?</p>
+                <a href="contactus.html" class="btn btn-primary">View Open Positions</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">WHAT THEY SAY</span>
+                <h2 class="section-title">Success Stories</h2>
+                <p>Hear from our students and partners about their experiences with Francis Academy.</p>
+            </div>
+            
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        "Francis Academy changed my life. The practical skills I gained helped me start my own business and become financially independent."
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="images/profile-image1.jpeg" alt="Student" class="author-img">
+                        <div class="author-info">
+                            <h4>Aheebwa Jane</h4>
+                            <p>Entrepreneur, Uganda</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        "As a teacher, I've incorporated Francis Academy's methods in my classroom with remarkable results. My students are more engaged and performing better."
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="images/profile4.jpeg" alt="Teacher" class="author-img">
+                        <div class="author-info">
+                            <h4>Musinguzi Jordan</h4>
+                            <p>High School Teacher, Kenya</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        "The quality of instruction at Francis Academy rivals top universities at a fraction of the cost. I completed their Data Science program and immediately got a job offer."
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="images/parent-avatar.jpeg" alt="Graduate" class="author-img">
+                        <div class="author-info">
+                            <h4>Akello Judy</h4>
+                            <p>Data Analyst, Rwanda</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Start Your Learning Journey?</h2>
+                <p>Join thousands of students who are transforming their lives through education.</p>
+                <div class="cta-buttons">
+                    <a href="category.html" class="btn btn-primary">Explore Courses</a>
+                    <a href="contactus.html" class="btn btn-outline">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>Francis Academy</h3>
+                    <p>Empowering students with personalized interactive learning designed to build essential skills for future success.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="category.html">Courses</a></li>
+                        <li><a href="kids.html">Kids Programs</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-newsletter">
+                    <h4>Newsletter</h4>
+                    <p>Subscribe to get updates on new courses and special offers.</p>
+                    <form>
+                        <input type="email" placeholder="Your email address">
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Francis Academy. All rights reserved.</p>
+                <div class="legal-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

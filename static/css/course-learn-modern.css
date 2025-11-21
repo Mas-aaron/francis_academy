@@ -1,0 +1,801 @@
+/* Modern Course Learning Page - Additional Styles */
+
+/* Layout Structure */
+.video-container-wrapper {
+  background: #f9fafb;
+  padding-bottom: 2rem;
+  margin-bottom: 0;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.content-section-wrapper {
+  background: white;
+  padding: 0 2rem 2rem;
+}
+
+/* Mini Video Player on Scroll */
+.video-section-coursera {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.video-section-coursera.mini-player {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  top: auto !important;
+  width: 400px !important;
+  max-width: 400px !important;
+  padding: 0 !important;
+  background: #000 !important;
+  z-index: 50 !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+  border-radius: 12px !important;
+  overflow: visible !important;
+}
+
+.video-section-coursera.mini-player .video-player-coursera {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  aspect-ratio: 16 / 9 !important;
+}
+
+/* Keep video visible in mini player */
+.video-section-coursera.mini-player video,
+.video-section-coursera.mini-player iframe {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 12px !important;
+}
+
+/* Hide placeholder when mini player is active */
+.video-section-coursera.mini-player .video-placeholder-coursera {
+  display: none;
+}
+
+/* Adjust main content when mini player is active - hide original container */
+.main-learning-content.has-mini-player .video-container-wrapper {
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+/* Make sure mini player doesn't inherit hidden properties */
+.main-learning-content.has-mini-player .video-section-coursera.mini-player {
+  visibility: visible !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Mini player controls */
+.mini-player-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 201;
+  display: none;
+  gap: 0.5rem;
+}
+
+.video-section-coursera.mini-player .mini-player-controls {
+  display: flex;
+}
+
+.mini-control-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.mini-control-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+/* Responsive mini player */
+@media (max-width: 768px) {
+  .video-section-coursera.mini-player {
+    width: 280px;
+    top: 70px;
+    right: 10px;
+  }
+}
+
+/* Modern Lesson Header */
+.lesson-header-modern {
+  padding: 2rem 0 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.lesson-header-content {
+  flex: 1;
+}
+
+.lesson-title-elegant {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.3;
+}
+
+.lesson-meta {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.lesson-meta span {
+  font-size: 0.9rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lesson-meta i {
+  color: #8b5cf6;
+}
+
+.lesson-actions-modern {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn-complete-modern,
+.btn-next-modern {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-complete-modern {
+  background: white;
+  color: #8b5cf6;
+  border: 2px solid #8b5cf6;
+}
+
+.btn-complete-modern:hover {
+  background: #8b5cf6;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-complete-modern.completed {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.btn-next-modern {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.btn-next-modern:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Sticky Tabs */
+.content-tabs-sticky {
+  background: white;
+  border-bottom: 2px solid #f3f4f6;
+  margin: 0 -2rem;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.content-tabs-sticky.is-sticky {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.tabs-container {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs-container::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn-modern {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab-btn-modern:hover {
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.tab-btn-modern.active {
+  color: #8b5cf6;
+  border-bottom-color: #8b5cf6;
+}
+
+.tab-btn-modern i {
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .lesson-header-modern {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .lesson-actions-modern {
+    width: 100%;
+  }
+  
+  .btn-complete-modern,
+  .btn-next-modern {
+    flex: 1;
+  }
+  
+  .lesson-title-elegant {
+    font-size: 1.5rem;
+  }
+  
+  .content-tabs-sticky {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+  
+  .tab-btn-modern {
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* ==================== DISCUSSIONS SECTION ==================== */
+
+.discussion-section {
+  padding: 1.5rem 0;
+}
+
+.discussion-section h3 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin: 0 0 1.5rem;
+  font-weight: 600;
+}
+
+.btn-new-discussion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.btn-new-discussion:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.discussion-form {
+  background: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.discussion-form .form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  font-family: inherit;
+}
+
+.discussion-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 1rem;
+}
+
+.discussion-form .form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.discussion-form .btn-post {
+  padding: 0.75rem 1.5rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.discussion-form .btn-post:hover {
+  background: #059669;
+}
+
+.discussion-form .btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.discussion-form .btn-cancel:hover {
+  background: #4b5563;
+}
+
+.discussions-list {
+  margin-top: 1.5rem;
+}
+
+.discussion-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+
+.discussion-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
+}
+
+.discussion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.discussion-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem;
+}
+
+.discussion-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.discussion-meta i {
+  color: #9ca3af;
+}
+
+.discussion-content {
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.discussion-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-reply {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-reply:hover {
+  background: #e5e7eb;
+}
+
+.replies-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.replies-header {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reply-item {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+
+.reply-header {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.reply-time {
+  font-weight: normal;
+  color: #9ca3af;
+  margin-left: 0.5rem;
+}
+
+.reply-content {
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.reply-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.reply-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 0.75rem;
+}
+
+.reply-form .form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.reply-form .btn-post {
+  padding: 0.5rem 1rem;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reply-form .btn-post:hover {
+  background: #7c3aed;
+}
+
+.reply-form .btn-cancel {
+  padding: 0.5rem 1rem;
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reply-form .btn-cancel:hover {
+  background: #d1d5db;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #9ca3af;
+  font-size: 1rem;
+}
+
+.auth-prompt {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+}
+
+.auth-prompt i {
+  font-size: 3rem;
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.auth-prompt p {
+  font-size: 1.125rem;
+}
+
+.auth-prompt a {
+  color: #8b5cf6;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-prompt a:hover {
+  color: #7c3aed;
+  text-decoration: underline;
+}
+
+.badge-replies {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ==================== NOTES SECTION ==================== */
+
+.notes-section {
+  padding: 1.5rem 0;
+}
+
+.notes-section h3 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin: 0 0 1.5rem;
+  font-weight: 600;
+}
+
+.note-form {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  border: 2px solid #fbbf24;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+}
+
+.note-form textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  background: white;
+  transition: all 0.2s;
+}
+
+.note-form textarea:focus {
+  outline: none;
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+}
+
+.btn-save-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+}
+
+.btn-save-note:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
+}
+
+.notes-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.note-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.note-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 0.75rem;
+}
+
+.note-timestamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.note-date {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.note-content {
+  color: #374151;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin-bottom: 0.75rem;
+}
+
+.note-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-delete-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background: #fee2e2;
+  color: #991b1b;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete-note:hover {
+  background: #fecaca;
+}
+
+.btn-jump-to {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-jump-to:hover {
+  background: #bfdbfe;
+}
+
+.notes-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #9ca3af;
+}
+
+.notes-empty i {
+  font-size: 3rem;
+  color: #fbbf24;
+  margin-bottom: 1rem;
+}
+
+.notes-empty h4 {
+  color: #374151;
+  margin: 0 0 0.5rem;
+}
+
+.notes-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fef3c7;
+  border-radius: 8px;
+  color: #92400e;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}

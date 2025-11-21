@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Question - {{ quiz.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/instructor.css' %}">
+<style>
+.question-edit-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.question-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.question-header h1 {
+    color: #1f2937;
+    font-size: 1.875rem;
+    margin: 0 0 0.5rem;
+}
+
+.breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb a {
+    color: #8b5cf6;
+    text-decoration: none;
+}
+
+.question-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.choices-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+    margin: 0;
+    color: #374151;
+    font-size: 1.25rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.choice-item {
+    display: grid;
+    grid-template-columns: 40px 1fr 100px 60px 40px;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.choice-item:hover {
+    border-color: #8b5cf6;
+    background: #f9fafb;
+}
+
+.choice-number {
+    background: #e5e7eb;
+    color: #374151;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.choice-input {
+    flex: 1;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox-wrapper label {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #10b981;
+    font-weight: 600;
+}
+
+.delete-choice {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: #ef4444;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.delete-choice:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f3f4f6;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+}
+
+.btn-primary {
+    background: #10b981;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.help-text {
+    background: #eff6ff;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    border: 1px solid #3b82f6;
+}
+
+.help-text p {
+    margin: 0;
+    color: #1e40af;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="question-edit-container">
+    <!-- Question Header -->
+    <div class="question-header">
+        <div class="breadcrumb">
+            <a href="{% url 'courses:instructor_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+            <span>›</span>
+            <a href="{% url 'courses:instructor_course_edit' course.slug %}">{{ course.title }}</a>
+            <span>›</span>
+            <a href="{% url 'courses:instructor_quiz_edit' course.slug quiz.id %}">{{ quiz.title }}</a>
+            <span>›</span>
+            <span>Edit Question</span>
+        </div>
+        <h1><i class="fas fa-edit"></i> Edit Question</h1>
+    </div>
+
+    <!-- Question Form -->
+    <div class="question-form">
+        <h2 style="margin: 0 0 1.5rem; color: #374151;">Question Details</h2>
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.question_text.id_for_label }}">Question Text *</label>
+                {{ form.question_text }}
+                {% if form.question_text.errors %}
+                    <div class="error">{{ form.question_text.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.question_type.id_for_label }}">Question Type *</label>
+                    {{ form.question_type }}
+                    {% if form.question_type.errors %}
+                        <div class="error">{{ form.question_type.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.points.id_for_label }}">Points *</label>
+                    {{ form.points }}
+                    {% if form.points.errors %}
+                        <div class="error">{{ form.points.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.order.id_for_label }}">Order</label>
+                {{ form.order }}
+                <small style="color: #6b7280; font-size: 0.75rem;">Lower numbers appear first</small>
+                {% if form.order.errors %}
+                    <div class="error">{{ form.order.errors }}</div>
+                {% endif %}
+            </div>
+
+    <!-- Answer Choices (only for multiple choice and true/false) -->
+    {% if formset %}
+    <div class="choices-section">
+        <div class="section-header">
+            <h2><i class="fas fa-list"></i> Answer Choices</h2>
+        </div>
+
+        <div class="help-text">
+            <i class="fas fa-lightbulb"></i>
+            <p><strong>Tip:</strong> Check ✓ the correct answer(s). Add 2-10 choices. Make wrong answers plausible!</p>
+        </div>
+
+        {{ formset.management_form }}
+        
+        <div id="choices-container">
+            {% for choice_form in formset %}
+                <div class="choice-item">
+                    <div class="choice-number">{{ forloop.counter }}</div>
+                    
+                    <div class="choice-input">
+                        {{ choice_form.choice_text }}
+                        {{ choice_form.id }}
+                        {% if choice_form.choice_text.errors %}
+                            <div class="error">{{ choice_form.choice_text.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="checkbox-wrapper">
+                        {{ choice_form.is_correct }}
+                        <label for="{{ choice_form.is_correct.id_for_label }}">Correct</label>
+                    </div>
+                    
+                    <div>
+                        {{ choice_form.order }}
+                    </div>
+                    
+                    <div>
+                        {{ choice_form.DELETE }}
+                        {% if choice_form.instance.pk %}
+                            <button type="button" class="delete-choice" onclick="this.previousElementSibling.checked = true; this.closest('.choice-item').style.opacity = '0.5';">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+    <!-- Short Answer - No Choices Needed -->
+    <div class="choices-section">
+        <div class="help-text" style="background: #f0fdf4; border-color: #10b981;">
+            <i class="fas fa-info-circle" style="color: #10b981;"></i>
+            <p style="color: #065f46;"><strong>Short Answer Question:</strong> Students will type their answer in a text box. You can review and grade their responses manually.</p>
+        </div>
+    </div>
+    {% endif %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {% if formset %}Save Question & Choices{% else %}Save Question{% endif %}
+                </button>
+                <a href="{% url 'courses:instructor_quiz_edit' course.slug quiz.id %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Quiz
+                </a>
+            </div>
+        </form>
+    </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+﻿# Media files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wmv
+
+# Directories
+media/lesson_videos/

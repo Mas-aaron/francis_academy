@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Francis Academy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/instructor.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="instructor-lesson-form">
+    <div class="container">
+        <!-- Header -->
+        <div class="form-header">
+            <a href="{% url 'courses:instructor_course_edit' course.slug %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Course
+            </a>
+            <div>
+                <h1>{{ title }}</h1>
+                <p>{{ course.title }}</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="lesson-form-container">
+            <form method="post" enctype="multipart/form-data" id="lesson-form">
+                {% csrf_token %}
+
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h2><i class="fas fa-info-circle"></i> Lesson Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}">Lesson Title *</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="error">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.description.id_for_label }}">Description</label>
+                        {{ form.description }}
+                        <small>Optional description for this lesson</small>
+                        {% if form.description.errors %}
+                            <div class="error">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.lesson_type.id_for_label }}">Lesson Type *</label>
+                            {{ form.lesson_type }}
+                            {% if form.lesson_type.errors %}
+                                <div class="error">{{ form.lesson_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.duration_minutes.id_for_label }}">Duration (minutes) *</label>
+                            {{ form.duration_minutes }}
+                            {% if form.duration_minutes.errors %}
+                                <div class="error">{{ form.duration_minutes.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.order.id_for_label }}">Lesson Order *</label>
+                            {{ form.order }}
+                            {% if form.order.errors %}
+                                <div class="error">{{ form.order.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Upload Section -->
+                <div class="form-section video-upload-section" id="video-section">
+                    <h2><i class="fas fa-video"></i> Video Content</h2>
+                    <p class="section-subtitle">Choose one of the following options to add your video</p>
+
+                    <!-- Upload Tabs -->
+                    <div class="upload-tabs">
+                        <button type="button" class="tab-btn active" data-tab="upload">
+                            <i class="fas fa-upload"></i> Upload Video File
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="url">
+                            <i class="fas fa-link"></i> YouTube / Vimeo URL
+                        </button>
+                    </div>
+
+                    <!-- Tab Content: Upload -->
+                    <div class="tab-content active" id="upload-tab">
+                        <div class="upload-area" id="upload-area">
+                            <input type="file" id="{{ form.video_file.id_for_label }}" name="video_file" accept="video/*" hidden>
+                            <div class="upload-placeholder" onclick="document.getElementById('{{ form.video_file.id_for_label }}').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h3>Click to upload or drag and drop</h3>
+                                <p>Supports MP4, WebM, OGG (Max 500MB)</p>
+                            </div>
+                            <div class="upload-preview" id="upload-preview" style="display: none;">
+                                <i class="fas fa-file-video"></i>
+                                <div class="file-info">
+                                    <strong id="file-name"></strong>
+                                    <small id="file-size"></small>
+                                </div>
+                                <button type="button" onclick="clearVideoFile()" class="btn-clear">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% if lesson.video_file %}
+                                <div class="current-video">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Current video: {{ lesson.video_file.name }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <small class="help-text">
+                            <i class="fas fa-info-circle"></i> 
+                            Upload videos directly from your computer. Supported formats: MP4, WebM, OGG.
+                        </small>
+                    </div>
+
+                    <!-- Tab Content: URL -->
+                    <div class="tab-content" id="url-tab">
+                        <div class="form-group">
+                            <label for="{{ form.video_url.id_for_label }}">Video URL</label>
+                            {{ form.video_url }}
+                            <small>YouTube: https://youtube.com/watch?v=VIDEO_ID or Vimeo: https://vimeo.com/VIDEO_ID</small>
+                            {% if form.video_url.errors %}
+                                <div class="error">{{ form.video_url.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% if lesson.video_url %}
+                            <div class="current-url">
+                                <i class="fas fa-link"></i>
+                                <span>Current URL: {{ lesson.video_url }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Text Content Section -->
+                <div class="form-section" id="text-section" style="display: none;">
+                    <h2><i class="fas fa-file-alt"></i> Text Content</h2>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.text_content.id_for_label }}">Content *</label>
+                        {{ form.text_content }}
+                        <small>Write your text-based lesson content here</small>
+                        {% if form.text_content.errors %}
+                            <div class="error">{{ form.text_content.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="form-section">
+                    <h2><i class="fas fa-cog"></i> Lesson Settings</h2>
+                    
+                    <div class="form-group form-checkbox">
+                        {{ form.is_preview }}
+                        <label for="{{ form.is_preview.id_for_label }}">
+                            Allow free preview
+                            <small>Students can watch this lesson without enrolling</small>
+                        </label>
+                        {% if form.is_preview.errors %}
+                            <div class="error">{{ form.is_preview.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {% for error in form.non_field_errors %}
+                            <div class="error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Submit Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="submit-btn">
+                        <i class="fas fa-save"></i> {% if is_edit %}Update Lesson{% else %}Create Lesson{% endif %}
+                    </button>
+                    <a href="{% url 'courses:instructor_course_edit' course.slug %}" class="btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide sections based on lesson type
+const lessonTypeSelect = document.getElementById('{{ form.lesson_type.id_for_label }}');
+const videoSection = document.getElementById('video-section');
+const textSection = document.getElementById('text-section');
+
+function updateSections() {
+    const type = lessonTypeSelect.value;
+    if (type === 'video') {
+        videoSection.style.display = 'block';
+        textSection.style.display = 'none';
+    } else if (type === 'text') {
+        videoSection.style.display = 'none';
+        textSection.style.display = 'block';
+    } else {
+        videoSection.style.display = 'none';
+        textSection.style.display = 'none';
+    }
+}
+
+lessonTypeSelect.addEventListener('change', updateSections);
+updateSections(); // Call on page load
+
+// Tab switching
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        
+        // Update buttons
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Update content
+        tabContents.forEach(c => c.classList.remove('active'));
+        document.getElementById(tab + '-tab').classList.add('active');
+    });
+});
+
+// Video file upload handling
+const videoFileInput = document.getElementById('{{ form.video_file.id_for_label }}');
+const uploadArea = document.getElementById('upload-area');
+const uploadPreview = document.getElementById('upload-preview');
+
+videoFileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        displayFileInfo(file);
+    }
+});
+
+// Drag and drop
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('video/')) {
+        videoFileInput.files = e.dataTransfer.files;
+        displayFileInfo(file);
+    } else {
+        alert('Please upload a video file');
+    }
+});
+
+function displayFileInfo(file) {
+    const fileName = file.name;
+    const fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+    
+    document.getElementById('file-name').textContent = fileName;
+    document.getElementById('file-size').textContent = fileSize;
+    
+    document.querySelector('.upload-placeholder').style.display = 'none';
+    uploadPreview.style.display = 'flex';
+}
+
+function clearVideoFile() {
+    videoFileInput.value = '';
+    uploadPreview.style.display = 'none';
+    document.querySelector('.upload-placeholder').style.display = 'flex';
+}
+
+// Form submission with loading state
+document.getElementById('lesson-form').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+});
+</script>
+{% endblock %}

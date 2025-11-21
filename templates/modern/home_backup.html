@@ -1,0 +1,336 @@
+{% extends 'modern/base.html' %}
+{% load static %}
+
+{% block title %}Francis Academy - Learn Skills That Matter{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content animate-fade-in-up">
+      <h1 class="hero-title">Learn Skills That Matter</h1>
+      <p class="hero-subtitle">
+        Join thousands of students learning in-demand skills with expert instructors. 
+        Start your journey today with our comprehensive courses.
+      </p>
+      <div class="hero-actions">
+        <a href="{% url 'modern_course_list' %}" class="btn btn-primary btn-xl">
+          <i class="fas fa-play"></i>
+          Start Learning
+        </a>
+        <a href="#featured-courses" class="btn btn-outline btn-xl">
+          <i class="fas fa-search"></i>
+          Browse Courses
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-16 bg-gray-50">
+  <div class="container">
+    <div class="grid grid-cols-4 gap-8 text-center">
+      <div class="animate-fade-in-up">
+        <div class="text-4xl font-bold text-primary mb-2" data-count="{{ total_students }}">0</div>
+        <div class="text-gray-600">Active Students</div>
+      </div>
+      <div class="animate-fade-in-up">
+        <div class="text-4xl font-bold text-primary mb-2" data-count="{{ total_courses }}">0</div>
+        <div class="text-gray-600">Courses Available</div>
+      </div>
+      <div class="animate-fade-in-up">
+        <div class="text-4xl font-bold text-primary mb-2" data-count="50">0</div>
+        <div class="text-gray-600">Expert Instructors</div>
+      </div>
+      <div class="animate-fade-in-up">
+        <div class="text-4xl font-bold text-primary mb-2" data-count="95">0</div>
+        <div class="text-gray-600">Success Rate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Search & Filters -->
+<section class="search-section" id="search">
+  <div class="container">
+    <h2 class="text-3xl font-bold text-center mb-8">Find Your Perfect Course</h2>
+    
+    <div class="search-container">
+      <div class="search-icon">
+        <i class="fas fa-search"></i>
+      </div>
+      <input type="text" class="search-input" placeholder="Search for courses, instructors, or topics...">
+    </div>
+    
+    <div class="filters">
+      <button class="filter-btn active" data-category="all">All Courses</button>
+      {% for category in categories %}
+        <button class="filter-btn" data-category="{{ category.slug }}">{{ category.name }}</button>
+      {% endfor %}
+    </div>
+    
+    <div class="search-results mt-6 text-center"></div>
+  </div>
+</section>
+
+<!-- Featured Courses -->
+<section class="py-20" id="featured-courses">
+  <div class="container">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold mb-4">Featured Courses</h2>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Discover our most popular courses, carefully selected by our education experts
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-3 gap-8">
+      {% for course in featured_courses %}
+        <div class="course-card animate-fade-in-up" data-category="{{ course.category.slug }}">
+          <div class="course-image">
+            {% if course.thumbnail %}
+              <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+            {% else %}
+              <img src="{% static 'images/default-course.jpg' %}" alt="{{ course.title }}">
+            {% endif %}
+            <div class="course-badge">Featured</div>
+          </div>
+          
+          <div class="course-content">
+            <div class="course-category">{{ course.category.name }}</div>
+            <h3 class="course-title">{{ course.title }}</h3>
+            <p class="course-instructor">By {{ course.instructor.full_name }}</p>
+            
+            <div class="course-meta">
+              <div class="course-rating">
+                <div class="flex items-center gap-1">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= course.average_rating|floatformat:0 %}
+                      <i class="fas fa-star"></i>
+                    {% else %}
+                      <i class="far fa-star"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <span class="ml-2">{{ course.average_rating|floatformat:1 }}</span>
+              </div>
+              <div class="course-students">
+                <i class="fas fa-users"></i>
+                {{ course.total_enrollments }} students
+              </div>
+            </div>
+            
+            {% if course.price > 0 %}
+              <div class="course-price">
+                <span class="price-current">${{ course.price }}</span>
+                {% if course.original_price %}
+                  <span class="price-original">${{ course.original_price }}</span>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="course-price">
+                <span class="price-current text-success">Free</span>
+              </div>
+            {% endif %}
+            
+            <div class="course-actions">
+              <button class="btn btn-primary flex-1" 
+                      data-action="enroll" 
+                      data-course-slug="{{ course.slug }}"
+                      data-course-title="{{ course.title }}">
+                <i class="fas fa-play"></i>
+                Enroll Now
+              </button>
+              <button class="btn btn-outline" 
+                      data-action="preview"
+                      data-course-slug="{{ course.slug }}">
+                <i class="fas fa-eye"></i>
+                Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-span-3 text-center py-12">
+          <i class="fas fa-book-open text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-600 mb-2">No Featured Courses Yet</h3>
+          <p class="text-gray-500">Check back soon for amazing courses!</p>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="text-center mt-12">
+      <a href="{% url 'modern_course_list' %}" class="btn btn-outline btn-lg">
+        View All Courses
+        <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-20 bg-gray-50">
+  <div class="container">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold mb-4">Explore Categories</h2>
+      <p class="text-xl text-gray-600">Choose from our wide range of course categories</p>
+    </div>
+    
+    <div class="grid grid-cols-3 gap-6">
+      {% for category in categories %}
+        <a href="{% url 'modern_course_list' %}?category={{ category.slug }}" 
+           class="card hover:shadow-xl transition-all duration-300 group">
+          <div class="card-body text-center">
+            <div class="text-4xl mb-4 text-primary group-hover:scale-110 transition-transform">
+              {% if category.name == 'Programming' %}
+                <i class="fas fa-code"></i>
+              {% elif category.name == 'Design' %}
+                <i class="fas fa-palette"></i>
+              {% elif category.name == 'Business' %}
+                <i class="fas fa-briefcase"></i>
+              {% elif category.name == 'Marketing' %}
+                <i class="fas fa-bullhorn"></i>
+              {% elif category.name == 'Data Science' %}
+                <i class="fas fa-chart-bar"></i>
+              {% else %}
+                <i class="fas fa-graduation-cap"></i>
+              {% endif %}
+            </div>
+            <h3 class="text-xl font-semibold mb-2">{{ category.name }}</h3>
+            <p class="text-gray-600 mb-4">{{ category.description|default:"Explore courses in this category" }}</p>
+            <div class="text-sm text-primary font-medium">
+              {{ category.course_count|default:0 }} Course{{ category.course_count|pluralize }}
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="py-20">
+  <div class="container">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold mb-4">Why Choose Francis Academy?</h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        We're committed to providing the best learning experience with cutting-edge technology and expert instruction
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-3 gap-8">
+      <div class="text-center animate-fade-in-up">
+        <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-chalkboard-teacher text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4">Expert Instructors</h3>
+        <p class="text-gray-600">
+          Learn from industry professionals with years of real-world experience and proven teaching methods.
+        </p>
+      </div>
+      
+      <div class="text-center animate-fade-in-up">
+        <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-mobile-alt text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4">Learn Anywhere</h3>
+        <p class="text-gray-600">
+          Access your courses on any device, anytime. Our platform works seamlessly across desktop, tablet, and mobile.
+        </p>
+      </div>
+      
+      <div class="text-center animate-fade-in-up">
+        <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-certificate text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4">Certificates</h3>
+        <p class="text-gray-600">
+          Earn recognized certificates upon course completion to showcase your new skills to employers.
+        </p>
+      </div>
+      
+      <div class="text-center animate-fade-in-up">
+        <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-users text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4">Community Support</h3>
+        <p class="text-gray-600">
+          Join a vibrant community of learners. Get help, share knowledge, and network with peers.
+        </p>
+      </div>
+      
+      <div class="text-center animate-fade-in-up">
+        <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-clock text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4">Lifetime Access</h3>
+        <p class="text-gray-600">
+          Once enrolled, you have lifetime access to course materials and any future updates.
+        </p>
+      </div>
+      
+      <div class="text-center animate-fade-in-up">
+        <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-rocket text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4">Career Growth</h3>
+        <p class="text-gray-600">
+          Our courses are designed to help you advance your career with practical, job-ready skills.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-primary text-white">
+  <div class="container text-center">
+    <h2 class="text-4xl font-bold mb-4">Ready to Start Learning?</h2>
+    <p class="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+      Join thousands of students who are already advancing their careers with Francis Academy
+    </p>
+    <div class="flex gap-4 justify-center">
+      <a href="{% url 'modern_course_list' %}" class="btn bg-white text-primary hover:bg-gray-100 btn-lg">
+        <i class="fas fa-graduation-cap"></i>
+        Browse Courses
+      </a>
+      {% if not user.is_authenticated %}
+        <a href="/admin/login/" class="btn btn-outline border-white text-white hover:bg-white hover:text-primary btn-lg">
+          <i class="fas fa-user-plus"></i>
+          Sign Up Free
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize homepage specific functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+  
+  // Add parallax effect to hero
+  window.addEventListener('scroll', function() {
+    const scrolled = window.pageYOffset;
+    const hero = document.querySelector('.hero');
+    if (hero) {
+      hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+    }
+  });
+});
+</script>
+{% endblock %}

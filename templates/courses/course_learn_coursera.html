@@ -1,0 +1,746 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load course_extras %}
+
+{% block title %}{{ course.title }} - Learning - Francis Academy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/course-learn-coursera.css' %}">
+<link rel="stylesheet" href="{% static 'css/course-learn-modern.css' %}">
+{% endblock %}
+
+
+{% block content %}
+    {% csrf_token %}
+    <div class="learning-page-container" data-course-slug="{{ course.slug }}" data-lesson-id="{{ current_lesson.id|default:'' }}">
+        <!-- Left Sidebar - Course Content -->
+        <aside class="course-sidebar-left">
+            <div class="sidebar-header">
+                <h2 class="course-title-sidebar">{{ course.title }}</h2>
+                <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            {% if enrollment %}
+                <div class="progress-overview">
+                    <div class="progress-text">{{ enrollment.progress_percentage }}% Complete</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: {{ enrollment.progress_percentage }}%"></div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="lessons-container">
+                <ul class="lessons-list">
+                    {% for lesson in lessons %}
+                        <li class="lesson-item-coursera {% if lesson == current_lesson %}active{% endif %}">
+                            <div onclick="loadLesson('{{ lesson.slug }}')" style="display: flex; align-items: center; gap: 1rem; flex: 1; cursor: pointer;">
+                                <div class="lesson-icon">
+                                    {% if lesson_progress|get_item:lesson.id %}
+                                        <i class="fas fa-check-circle completed-icon"></i>
+                                    {% elif lesson == current_lesson %}
+                                        <i class="fas fa-play-circle playing-icon"></i>
+                                    {% else %}
+                                        <i class="far fa-circle pending-icon"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="lesson-info">
+                                    <div class="lesson-title">{{ lesson.title }}</div>
+                                    <div class="lesson-meta">
+                                        <span><i class="far fa-clock"></i> {{ lesson.duration_minutes|default:"5" }} min</span>
+                                        {% if lesson.lesson_type == 'quiz' %}
+                                            <span class="quiz-badge">Quiz</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if lesson.quiz %}
+                                <a href="{% url 'courses:quiz_take' course.slug lesson.id %}" 
+                                   class="quiz-badge" 
+                                   style="background: #10b981; cursor: pointer; text-decoration: none; margin-left: auto;"
+                                   onclick="event.stopPropagation();">
+                                    <i class="fas fa-clipboard-check"></i> Quiz
+                                </a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-learning-content">
+            <!-- Video Container (stays fixed) -->
+            <div class="video-container-wrapper">
+                <!-- Video Player -->
+                <div class="video-section-coursera" id="videoSection">
+                    <!-- Mini Player Controls -->
+                    <div class="mini-player-controls">
+                        <button class="mini-control-btn" onclick="toggleMiniPlayer()" title="Exit mini player">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                    <div class="video-player-coursera" id="videoPlayer">
+                    {% if current_lesson and current_lesson.lesson_type == 'video' %}
+                        {% if current_lesson.video_file %}
+                            <!-- Uploaded Video File -->
+                            <video id="mainVideo" controls controlsList="nodownload">
+                                <source src="{{ current_lesson.video_file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% elif current_lesson.video_url %}
+                            <!-- YouTube/Vimeo or Direct URL -->
+                            {% if 'youtube.com' in current_lesson.video_url or 'youtu.be' in current_lesson.video_url %}
+                                <!-- YouTube Video -->
+                                {% with video_id=current_lesson.video_url|youtube_id %}
+                                    {% if video_id %}
+                                        <iframe id="mainVideo" src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    {% else %}
+                                        <div class="video-placeholder-coursera">
+                                            <div class="placeholder-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                                            <h3>Invalid YouTube URL</h3>
+                                            <p>Please check the video URL in lesson settings</p>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% elif 'vimeo.com' in current_lesson.video_url %}
+                                <!-- Vimeo Video -->
+                                {% with video_id=current_lesson.video_url|vimeo_id %}
+                                    {% if video_id %}
+                                        <iframe id="mainVideo" src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                                    {% else %}
+                                        <div class="video-placeholder-coursera">
+                                            <div class="placeholder-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                                            <h3>Invalid Vimeo URL</h3>
+                                            <p>Please check the video URL in lesson settings</p>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <!-- Direct Video URL -->
+                                <video id="mainVideo" controls controlsList="nodownload">
+                                    <source src="{{ current_lesson.video_url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            {% endif %}
+                        {% else %}
+                            <div class="video-placeholder-coursera">
+                                <div class="placeholder-icon">
+                                    <i class="fas fa-video-slash"></i>
+                                </div>
+                                <h3>{{ current_lesson.title }}</h3>
+                                <p>No video uploaded for this lesson yet</p>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="video-placeholder-coursera">
+                            <div class="placeholder-icon">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <h3>{% if current_lesson %}{{ current_lesson.title }}{% else %}Select a lesson to start{% endif %}</h3>
+                            <p>{% if current_lesson.lesson_type == 'text' %}This is a text lesson{% else %}Video content will be available soon{% endif %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            </div>
+            
+            <!-- Content Section (scrollable) -->
+            <div class="content-section-wrapper">
+                <!-- Lesson Info Header -->
+                <div class="lesson-header-modern">
+                <div class="lesson-header-content">
+                    <h1 class="lesson-title-elegant">{% if current_lesson %}{{ current_lesson.title }}{% else %}{{ course.title }}{% endif %}</h1>
+                    <div class="lesson-meta">
+                        <span class="lesson-number"><i class="fas fa-play-circle"></i> Lesson {{ current_lesson.order|default:"1" }}</span>
+                        <span class="lesson-duration"><i class="fas fa-clock"></i> {{ current_lesson.duration|default:"15" }} min</span>
+                    </div>
+                </div>
+                <div class="lesson-actions-modern">
+                    {% if enrollment and current_lesson %}
+                        {% if current_lesson.quiz %}
+                            <a href="{% url 'courses:quiz_take' course.slug current_lesson.id %}" class="btn-complete-modern" style="background: #10b981; text-decoration: none;">
+                                <i class="fas fa-clipboard-check"></i> Take Quiz
+                            </a>
+                        {% endif %}
+                        <button class="btn-complete-modern {% if lesson_progress|get_item:current_lesson.id %}completed{% endif %}" onclick="markComplete()" id="completeBtn">
+                            {% if lesson_progress|get_item:current_lesson.id %}
+                                <i class="fas fa-check-circle"></i> Completed
+                            {% else %}
+                                <i class="far fa-circle"></i> Mark Complete
+                            {% endif %}
+                        </button>
+                    {% endif %}
+                    <button class="btn-next-modern" onclick="nextLesson()">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Sticky Tabs Section -->
+            <div class="content-tabs-sticky" id="stickyTabs">
+                <div class="tabs-container">
+                    <button class="tab-btn-modern active" onclick="showTab('overview')" data-tab="overview">
+                        <i class="fas fa-info-circle"></i> Overview
+                    </button>
+                    <button class="tab-btn-modern" onclick="showTab('notes')" data-tab="notes">
+                        <i class="fas fa-file-alt"></i> Notes
+                    </button>
+                    <button class="tab-btn-modern" onclick="showTab('discussions')" data-tab="discussions">
+                        <i class="fas fa-comments"></i> Discussions
+                    </button>
+                    <button class="tab-btn-modern" onclick="showTab('transcript')" data-tab="transcript">
+                        <i class="fas fa-closed-captioning"></i> Transcript
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="tab-content-area">
+                <!-- Overview Tab -->
+                <div id="overview-tab" class="tab-panel-coursera" style="display: block;">
+                    {% if current_lesson %}
+                        <div class="lesson-description">
+                            <h3>About this lesson</h3>
+                            <p>{{ current_lesson.description|default:"In this lesson, you'll learn important concepts and gain hands-on experience." }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Notes Tab -->
+                <div id="notes-tab" class="tab-panel-coursera" style="display: none;">
+                    {% if user.is_authenticated %}
+                        <div class="notes-section">
+                            <h3>My Notes</h3>
+                            <div class="note-form">
+                                <textarea id="noteContent" placeholder="Add a note..."></textarea>
+                                <button class="btn-save-note" onclick="saveNote()">
+                                    <i class="fas fa-save"></i> Save Note
+                                </button>
+                            </div>
+                            
+                            <div class="notes-list" id="notesList">
+                                <p class="empty-message">No notes yet. Add your first note above!</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="auth-prompt">
+                            <i class="fas fa-lock"></i>
+                            <p><a href="{% url 'login' %}">Login</a> to take notes</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Discussions Tab -->
+                <div id="discussions-tab" class="tab-panel-coursera" style="display: none;">
+                    {% if user.is_authenticated %}
+                        <div class="discussion-section">
+                            <h3>Discussions</h3>
+                            <button class="btn-new-discussion" onclick="showNewDiscussion()">
+                                <i class="fas fa-plus"></i> Ask Question
+                            </button>
+                            
+                            <div id="newDiscussionForm" class="discussion-form" style="display: none;">
+                                <input type="text" id="discussionTitle" placeholder="Question title..." class="form-input">
+                                <textarea id="discussionContent" placeholder="Describe your question..."></textarea>
+                                <div class="form-actions">
+                                    <button class="btn-post" onclick="saveDiscussion()">Post Question</button>
+                                    <button class="btn-cancel" onclick="hideNewDiscussion()">Cancel</button>
+                                </div>
+                            </div>
+                            
+                            <div class="discussions-list" id="discussionsList">
+                                <div id="discussionContainer">
+                                    <p class="empty-message">No discussions yet. Ask a question!</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="auth-prompt">
+                            <i class="fas fa-lock"></i>
+                            <p><a href="{% url 'login' %}">Login</a> to participate in discussions</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Transcript Tab -->
+                <div id="transcript-tab" class="tab-panel-coursera" style="display: none;">
+                    <div class="transcript-section">
+                        <h3>Video Transcript</h3>
+                        <div class="transcript-content">
+                            <div class="transcript-item" data-time="0:00">
+                                <span class="transcript-time">0:00</span>
+                                <p class="transcript-text">{{ current_lesson.description|default:"Transcript for this lesson will be available soon. Check back later for detailed subtitles and timestamps." }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/draggable-video.js' %}?v=2"></script>
+<script>
+    let currentVideo = null;
+    let currentLesson = {{ current_lesson.id|default:'null' }};
+    let courseSlug = '{{ course.slug }}';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        currentVideo = document.getElementById('mainVideo');
+        if (currentVideo) {
+            setupVideoPlayer();
+        }
+        
+        // Setup scroll effects with sticky tabs
+        setupScrollEffects();
+        setupStickyTabs();
+    });
+    
+    let miniPlayerActive = false;  // Global flag for mini-player state
+    
+    function setupStickyTabs() {
+        const stickyTabs = document.getElementById('stickyTabs');
+        const mainContent = document.querySelector('.main-learning-content');
+        const videoSection = document.getElementById('videoSection');
+        const videoContainer = document.querySelector('.video-container-wrapper');
+        
+        if (!mainContent || !stickyTabs || !videoSection) {
+            console.log('Missing elements for mini player');
+            return;
+        }
+        
+        mainContent.addEventListener('scroll', function() {
+            const scrollTop = mainContent.scrollTop;
+            const videoContainerHeight = videoContainer ? videoContainer.offsetHeight : 500;
+            
+            // Activate mini player when scrolling past video (trigger point at 300px)
+            // Once activated, it stays mini until manually closed
+            if (scrollTop > 300 && !miniPlayerActive) {
+                console.log('Activating mini player');
+                videoSection.classList.add('mini-player');
+                mainContent.classList.add('has-mini-player');
+                stickyTabs.classList.add('is-sticky');
+                miniPlayerActive = true;
+            }
+            // Don't automatically deactivate when scrolling back up
+            // User must click expand button to exit mini player
+            
+            // Add shadow to sticky tabs when scrolled
+            if (scrollTop > 50) {
+                stickyTabs.classList.add('is-sticky');
+            } else {
+                stickyTabs.classList.remove('is-sticky');
+            }
+        });
+    }
+    
+    function setupScrollEffects() {
+        const mainContent = document.querySelector('.main-learning-content');
+        const videoSection = document.querySelector('.video-section-coursera');
+        
+        if (!mainContent || !videoSection) return;
+        
+        mainContent.addEventListener('scroll', function() {
+            const scrollTop = mainContent.scrollTop;
+            
+            // Add 'scrolled' class when scrolled down
+            if (scrollTop > 50) {
+                videoSection.classList.add('scrolled');
+            } else {
+                videoSection.classList.remove('scrolled');
+            }
+        });
+    }
+    
+    function toggleMiniPlayer() {
+        const videoSection = document.getElementById('videoSection');
+        const mainContent = document.querySelector('.main-learning-content');
+        
+        if (videoSection && videoSection.classList.contains('mini-player')) {
+            console.log('Exiting mini player');
+            // Exit mini player - scroll back to top
+            videoSection.classList.remove('mini-player');
+            mainContent.classList.remove('has-mini-player');
+            miniPlayerActive = false;  // Reset flag
+            mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+    
+    function setupVideoPlayer() {
+        currentVideo.addEventListener('timeupdate', function() {
+            const progress = (currentVideo.currentTime / currentVideo.duration) * 100;
+            // Track progress
+        });
+        
+        currentVideo.addEventListener('ended', function() {
+            if ({{ enrollment|yesno:'true,false' }}) {
+                markComplete();
+            }
+        });
+    }
+    
+    function toggleSidebar() {
+        document.querySelector('.course-sidebar-left').classList.toggle('collapsed');
+    }
+    
+    function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-panel-coursera').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        
+        // Remove active class from all buttons
+        document.querySelectorAll('.tab-btn-modern, .tab-btn-coursera').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabName + '-tab').style.display = 'block';
+        
+        // Add active class to clicked button
+        document.querySelectorAll(`[data-tab="${tabName}"]`).forEach(btn => {
+            btn.classList.add('active');
+        });
+        
+        // Load content for specific tabs
+        if (tabName === 'notes') {
+            loadNotes();
+        } else if (tabName === 'discussions') {
+            loadDiscussions();
+        }
+    }
+    
+    function loadLesson(lessonSlug) {
+        window.location.href = `?lesson=${lessonSlug}`;
+    }
+    
+    function markComplete() {
+        if (!currentLesson) return;
+        
+        fetch(`/courses/course/${courseSlug}/lesson/${currentLesson}/complete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const btn = document.getElementById('completeBtn');
+            if (data.completed) {
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Completed';
+                btn.classList.add('completed');
+            }
+            location.reload();
+        });
+    }
+    
+    function nextLesson() {
+        // Navigate to next lesson
+        const lessons = document.querySelectorAll('.lesson-item-coursera');
+        let currentIndex = -1;
+        lessons.forEach((lesson, index) => {
+            if (lesson.classList.contains('active')) {
+                currentIndex = index;
+            }
+        });
+        
+        if (currentIndex >= 0 && currentIndex < lessons.length - 1) {
+            const nextLessonItem = lessons[currentIndex + 1];
+            const clickableDiv = nextLessonItem.querySelector('div[onclick]');
+            if (clickableDiv) {
+                clickableDiv.click();
+            }
+        }
+    }
+    
+    // Notes Functions
+    function loadNotes() {
+        {% if current_lesson %}
+        fetch("{% url 'courses:get_notes' course.slug current_lesson.id %}")
+            .then(response => response.json())
+            .then(data => {
+                const notesList = document.getElementById('notesList');
+                if (data.notes.length === 0) {
+                    notesList.innerHTML = `
+                        <div class="notes-empty">
+                            <i class="fas fa-sticky-note"></i>
+                            <h4>No notes yet</h4>
+                            <p>Add your first note above!</p>
+                        </div>
+                    `;
+                } else {
+                    notesList.innerHTML = `
+                        <div class="notes-count">
+                            <i class="fas fa-sticky-note"></i>
+                            ${data.notes.length} ${data.notes.length === 1 ? 'note' : 'notes'}
+                        </div>
+                    ` + data.notes.map(note => `
+                        <div class="note-item">
+                            <div class="note-header">
+                                ${note.timestamp > 0 ? `
+                                    <span class="note-timestamp">
+                                        <i class="fas fa-clock"></i> ${formatTime(note.timestamp)}
+                                    </span>
+                                ` : ''}
+                                <span class="note-date">${note.created_at}</span>
+                            </div>
+                            <div class="note-content">${note.content}</div>
+                            <div class="note-actions">
+                                ${note.timestamp > 0 ? `
+                                    <button class="btn-jump-to" onclick="jumpToTime(${note.timestamp})">
+                                        <i class="fas fa-play"></i> Jump to time
+                                    </button>
+                                ` : ''}
+                                <button class="btn-delete-note" onclick="deleteNote(${note.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(error => console.error('Error loading notes:', error));
+        {% endif %}
+    }
+    
+    function saveNote() {
+        const content = document.getElementById('noteContent').value.trim();
+        if (!content) {
+            alert('Please enter some content for your note');
+            return;
+        }
+        
+        const video = document.querySelector('video');
+        const timestamp = video ? Math.floor(video.currentTime) : 0;
+        
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('timestamp', timestamp);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        {% if current_lesson %}
+        fetch("{% url 'courses:create_note' course.slug current_lesson.id %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('noteContent').value = '';
+                loadNotes();
+            } else {
+                alert(data.error || 'Failed to save note');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to save note');
+        });
+        {% endif %}
+    }
+    
+    function deleteNote(noteId) {
+        if (!confirm('Are you sure you want to delete this note?')) {
+            return;
+        }
+        
+        fetch(`/courses/course/{{ course.slug }}/note/${noteId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadNotes();
+            } else {
+                alert('Failed to delete note');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete note');
+        });
+    }
+    
+    function jumpToTime(seconds) {
+        const video = document.querySelector('video');
+        if (video) {
+            video.currentTime = seconds;
+            video.play();
+        }
+    }
+    
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    function showNewDiscussion() {
+        document.getElementById('newDiscussionForm').style.display = 'block';
+    }
+    
+    function hideNewDiscussion() {
+        document.getElementById('newDiscussionForm').style.display = 'none';
+        document.getElementById('discussionTitle').value = '';
+        document.getElementById('discussionContent').value = '';
+    }
+    
+    function loadDiscussions() {
+        {% if current_lesson %}
+        fetch("{% url 'courses:get_discussions' course.slug current_lesson.id %}")
+            .then(response => response.json())
+            .then(data => {
+                const discussionsList = document.getElementById('discussionsList');
+                if (data.discussions.length === 0) {
+                    discussionsList.innerHTML = '<p class="empty-message">No discussions yet. Ask a question!</p>';
+                } else {
+                    discussionsList.innerHTML = data.discussions.map(d => `
+                        <div class="discussion-item">
+                            <div class="discussion-header">
+                                <div style="flex: 1;">
+                                    <h4 class="discussion-title">${d.title}</h4>
+                                    <div class="discussion-meta">
+                                        <i class="fas fa-user"></i> ${d.user} • <i class="far fa-clock"></i> ${d.created_at}
+                                    </div>
+                                </div>
+                                <span class="badge-replies">
+                                    <i class="fas fa-comments"></i> ${d.reply_count}
+                                </span>
+                            </div>
+                            <div class="discussion-content">${d.content}</div>
+                            
+                            ${d.replies.length > 0 ? `
+                                <div class="replies-section">
+                                    <div class="replies-header">
+                                        <i class="fas fa-reply"></i> Replies
+                                    </div>
+                                    ${d.replies.map(r => `
+                                        <div class="reply-item">
+                                            <div class="reply-header">
+                                                ${r.user}
+                                                <span class="reply-time">• ${r.created_at}</span>
+                                            </div>
+                                            <div class="reply-content">${r.content}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            <div class="discussion-actions">
+                                <button class="btn-reply" onclick="showReplyForm(${d.id})">
+                                    <i class="fas fa-reply"></i> Reply
+                                </button>
+                            </div>
+                            
+                            <div id="replyForm${d.id}" class="reply-form" style="display: none;">
+                                <textarea id="replyContent${d.id}" placeholder="Write your reply..."></textarea>
+                                <div class="form-actions">
+                                    <button class="btn-post" onclick="saveReply(${d.id})">
+                                        <i class="fas fa-paper-plane"></i> Post Reply
+                                    </button>
+                                    <button class="btn-cancel" onclick="hideReplyForm(${d.id})">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(error => console.error('Error loading discussions:', error));
+        {% endif %}
+    }
+    
+    function saveDiscussion() {
+        const title = document.getElementById('discussionTitle').value.trim();
+        const content = document.getElementById('discussionContent').value.trim();
+        
+        if (!title || !content) {
+            alert('Please fill in both title and content');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        {% if current_lesson %}
+        fetch("{% url 'courses:create_discussion' course.slug current_lesson.id %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                hideNewDiscussion();
+                loadDiscussions();
+            } else {
+                alert(data.error || 'Failed to create discussion');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to create discussion');
+        });
+        {% endif %}
+    }
+    
+    function showReplyForm(discussionId) {
+        document.getElementById('replyForm' + discussionId).style.display = 'block';
+    }
+    
+    function hideReplyForm(discussionId) {
+        document.getElementById('replyForm' + discussionId).style.display = 'none';
+        document.getElementById('replyContent' + discussionId).value = '';
+    }
+    
+    function saveReply(discussionId) {
+        const content = document.getElementById('replyContent' + discussionId).value.trim();
+        
+        if (!content) {
+            alert('Please enter a reply');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        fetch(`/courses/course/{{ course.slug }}/discussion/${discussionId}/reply/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                hideReplyForm(discussionId);
+                loadDiscussions();
+            } else {
+                alert(data.error || 'Failed to post reply');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to post reply');
+        });
+    }
+    
+    // Load discussions when tab is shown
+    document.addEventListener('DOMContentLoaded', function() {
+        const discussionsTab = document.querySelector('[data-tab="discussions"]');
+        if (discussionsTab) {
+            discussionsTab.addEventListener('click', function() {
+                setTimeout(loadDiscussions, 100);
+            });
+        }
+    });
+</script>
+{% endblock %}

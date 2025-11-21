@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quiz Results - {{ quiz.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.results-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.results-header {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.results-header.passed {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.results-header.failed {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.results-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.results-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2.5rem;
+}
+
+.results-header p {
+    margin: 0;
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.score-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.score-item {
+    text-align: center;
+}
+
+.score-value {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.score-value.passed {
+    color: #10b981;
+}
+
+.score-value.failed {
+    color: #ef4444;
+}
+
+.score-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.5rem;
+}
+
+.progress-ring {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1rem;
+}
+
+.detailed-results {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.detailed-results h2 {
+    margin: 0 0 1.5rem;
+    color: #374151;
+}
+
+.answer-card {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.answer-card.correct {
+    background: #f0fdf4;
+    border-color: #10b981;
+}
+
+.answer-card.incorrect {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+.answer-header {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.answer-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.answer-icon.correct {
+    background: #10b981;
+    color: white;
+}
+
+.answer-icon.incorrect {
+    background: #ef4444;
+    color: white;
+}
+
+.answer-text {
+    flex: 1;
+}
+
+.question-text {
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+}
+
+.answer-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.your-answer,
+.correct-answer {
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.your-answer {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.correct-answer {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.actions-section {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+}
+
+.btn-primary {
+    background: #8b5cf6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #7c3aed;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: white;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+}
+
+.stats-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.stats-badge.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.stats-badge.danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <!-- Results Header -->
+    <div class="results-header {% if attempt.passed %}passed{% else %}failed{% endif %}">
+        <div class="results-icon">
+            {% if attempt.passed %}
+                <i class="fas fa-trophy"></i>
+            {% else %}
+                <i class="fas fa-times-circle"></i>
+            {% endif %}
+        </div>
+        <h1>
+            {% if attempt.passed %}
+                Congratulations! You Passed!
+            {% else %}
+                Not Quite There Yet
+            {% endif %}
+        </h1>
+        <p>{{ quiz.title }}</p>
+    </div>
+
+    <!-- Score Card -->
+    <div class="score-card">
+        <div style="text-align: center;">
+            <h2 style="margin: 0 0 1rem; color: #374151;">Your Results</h2>
+        </div>
+        
+        <div class="score-grid">
+            <div class="score-item">
+                <p class="score-value {% if attempt.passed %}passed{% else %}failed{% endif %}">
+                    {{ attempt.score|floatformat:0 }}%
+                </p>
+                <p class="score-label">Your Score</p>
+            </div>
+            
+            <div class="score-item">
+                <p class="score-value" style="color: #8b5cf6;">
+                    {{ quiz.passing_score }}%
+                </p>
+                <p class="score-label">Passing Score</p>
+            </div>
+            
+            <div class="score-item">
+                <p class="score-value" style="color: #3b82f6;">
+                    {{ correct_count }}/{{ total_questions }}
+                </p>
+                <p class="score-label">Correct Answers</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            {% if attempt.passed %}
+                <span class="stats-badge success">
+                    <i class="fas fa-check-circle"></i>
+                    Passed
+                </span>
+            {% else %}
+                <span class="stats-badge danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Failed - Try Again
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Detailed Results -->
+    <div class="detailed-results">
+        <h2><i class="fas fa-list-alt"></i> Detailed Review</h2>
+        
+        {% for answer in answers %}
+        <div class="answer-card {% if answer.is_correct %}correct{% else %}incorrect{% endif %}">
+            <div class="answer-header">
+                <div class="answer-icon {% if answer.is_correct %}correct{% else %}incorrect{% endif %}">
+                    {% if answer.is_correct %}
+                        <i class="fas fa-check"></i>
+                    {% else %}
+                        <i class="fas fa-times"></i>
+                    {% endif %}
+                </div>
+                
+                <div class="answer-text">
+                    <p class="question-text">
+                        Question {{ forloop.counter }}: {{ answer.question.question_text }}
+                    </p>
+                    <p class="answer-info">
+                        <i class="fas fa-star"></i> {{ answer.question.points }} point{{ answer.question.points|pluralize }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="your-answer">
+                <strong>Your Answer:</strong> 
+                {% if answer.question.question_type == 'short_answer' %}
+                    {% if answer.answer_text %}
+                        <div style="margin-top: 0.5rem; padding: 0.75rem; background: white; border-radius: 4px;">
+                            {{ answer.answer_text }}
+                        </div>
+                        <p style="color: #f59e0b; font-size: 0.875rem; margin-top: 0.5rem;">
+                            <i class="fas fa-clock"></i> Pending instructor review
+                        </p>
+                    {% else %}
+                        <em>Not answered</em>
+                    {% endif %}
+                {% elif answer.selected_choice %}
+                    {{ answer.selected_choice.choice_text }}
+                    {% if answer.is_correct %}
+                        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle" style="color: #ef4444;"></i>
+                    {% endif %}
+                {% else %}
+                    <em>Not answered</em>
+                {% endif %}
+            </div>
+
+            {% if not answer.is_correct and answer.question.question_type != 'short_answer' %}
+            <div class="correct-answer">
+                <strong><i class="fas fa-lightbulb"></i> Correct Answer:</strong>
+                {% with answer.question.choices.all|dictsort:"is_correct" as choices %}
+                    {% for choice in choices %}
+                        {% if choice.is_correct %}
+                            {{ choice.choice_text }}
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-section">
+        <a href="{% url 'courses:course_learn' course.slug %}" class="btn btn-primary">
+            <i class="fas fa-book"></i> Continue Learning
+        </a>
+        {% if not attempt.passed %}
+        <a href="{% url 'courses:quiz_take' course.slug quiz.id %}" class="btn btn-secondary">
+            <i class="fas fa-redo"></i> Retake Quiz
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
