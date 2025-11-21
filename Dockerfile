@@ -24,8 +24,8 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput || true
 
-# Expose the port Fly.io uses
+# Expose a default port; Railway will still inject $PORT
 EXPOSE 8080
 
-# Run the application
-CMD gunicorn francis_academy.wsgi:application --bind 0.0.0.0:8080
+# Run the application and bind to Railway's PORT if provided
+CMD sh -c "gunicorn francis_academy.wsgi:application --bind 0.0.0.0:${PORT:-8080}"
