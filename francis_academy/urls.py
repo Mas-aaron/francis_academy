@@ -11,10 +11,13 @@ from courses.models import Category
 from courses.views import home, CourseListView, CourseDetailView, student_dashboard, about_view, contact_view
 from courses.auth_views import signup_view, login_view, logout_view
 
+def health_check(request):
+    return HttpResponse("OK", status=200)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),
-    path('health/', lambda request: HttpResponse("OK", status=200), name='health_check'),
+    path('', health_check, name='health_check'),
+    path('home/', home, name='home'),
     path('dashboard/', student_dashboard, name='student_dashboard'),
     path('debug/categories/', lambda request: JsonResponse({
         'categories': [
